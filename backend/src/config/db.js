@@ -12,7 +12,9 @@ export async function connectDatabase() {
 
   try {
     mongoose.set("strictQuery", true);
-    await mongoose.connect(mongoUri);
+    await mongoose.connect(mongoUri, {
+      serverSelectionTimeoutMS: 10000
+    });
     databaseMode = "mongo";
     return mongoose.connection;
   } catch (error) {

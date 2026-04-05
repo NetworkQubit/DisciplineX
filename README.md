@@ -1,6 +1,6 @@
-# StudyFlow Desktop
+# DisciplineX
 
-StudyFlow Desktop is a personal study productivity app built for desktop use. It focuses on one user workspace with stored profile data, subject planning, task management, session tracking, analytics, and a reset option to clear saved data.
+DisciplineX is a personal study productivity app built for desktop use. It focuses on one user workspace with stored profile data, subject planning, task management, session tracking, analytics, and a reset option to clear saved data.
 
 ## Stack
 
@@ -74,6 +74,18 @@ cp backend/.env.example backend/.env
 
 3. Set `MONGODB_URI` in `backend/.env`.
 
+Atlas example:
+
+```env
+MONGODB_URI=mongodb+srv://YOUR_DB_USERNAME:YOUR_DB_PASSWORD@YOUR_CLUSTER.mongodb.net/disciplinex?retryWrites=true&w=majority
+```
+
+Local MongoDB Community example:
+
+```env
+MONGODB_URI=mongodb://127.0.0.1:27017/disciplinex
+```
+
 4. Start the frontend and backend:
 
 ```bash
@@ -84,4 +96,4 @@ Frontend runs on `http://localhost:5173` and backend on `http://localhost:5000`.
 
 ## Database Note
 
-The backend expects MongoDB. If you do not have a local MongoDB server, use a hosted MongoDB connection string in `backend/.env`.
+The backend accepts either MongoDB Atlas or a local MongoDB Community server through `MONGODB_URI`. For Render deployment, use MongoDB Atlas and set the same URI in your Render environment variables.

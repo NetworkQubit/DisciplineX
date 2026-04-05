@@ -22,6 +22,14 @@ export function createApp() {
   app.use(express.json({ limit: "10mb" }));
   app.use(morgan("dev"));
 
+  app.get("/", (req, res) => {
+    res.json({
+      name: "DisciplineX API",
+      status: "ok",
+      health: "/api/health"
+    });
+  });
+
   app.get("/api/health", (req, res) => {
     res.json({ status: "ok", timestamp: new Date().toISOString() });
   });
