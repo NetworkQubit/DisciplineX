@@ -88,7 +88,7 @@ export function AppRouter() {
       setAuthUser(response.user);
     } catch (nextError) {
       if (nextError instanceof AxiosError) {
-        setAuthError(nextError.response?.data?.message || "Authentication failed.");
+        setAuthError(nextError.response?.data?.message || nextError.message || "Authentication failed.");
       } else {
         setAuthError("Authentication failed.");
       }
