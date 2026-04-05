@@ -1,0 +1,177 @@
+{
+  "profile": {
+    "id": "5a6962eb-3754-48eb-9916-a19e161f4664",
+    "username": "desktop-user",
+    "email": "desktop@studyflow.local",
+    "avatar": "",
+    "bio": "Personal study workspace",
+    "studyGoalMinutes": 240,
+    "totalStudySeconds": 31508,
+    "streak": 3,
+    "level": 2,
+    "xp": 525,
+    "preferences": {
+      "theme": "system",
+      "websiteBlockingEnabled": false,
+      "pomodoroFocusMinutes": 25,
+      "pomodoroBreakMinutes": 5
+    }
+  },
+  "subjects": [
+    {
+      "id": "4af9016f-f287-4596-ae2c-99ddf411411f",
+      "name": "Physics",
+      "color": "#14B8A6",
+      "goalMinutes": 90,
+      "icon": "BookOpen"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "19ed7876-3dec-4cc0-909b-318faae65467",
+      "title": "Solve 20 differentiation problems",
+      "priority": "high",
+      "status": "todo",
+      "position": 0
+    },
+    {
+      "id": "6d03629a-cba8-4dfb-8ef7-34f6e5473046",
+      "title": "Review thermodynamics notes",
+      "priority": "medium",
+      "status": "todo",
+      "position": 1
+    },
+    {
+      "id": "9c220337-fde4-405e-b7ab-185d6b83b42e",
+      "title": "Build timer screen interactions",
+      "priority": "high",
+      "status": "todo",
+      "position": 2
+    }
+  ],
+  "sessions": [
+    {
+      "id": "81a9aff5-d460-456c-8e3c-dd34e24fb1bd",
+      "mode": "standard",
+      "startedAt": "2026-04-04T04:30:00.000Z",
+      "endedAt": "2026-04-04T05:15:00.000Z",
+      "durationSeconds": 2700,
+      "isActive": false,
+      "isPaused": false
+    },
+    {
+      "id": "434ca1a3-f04a-46b6-af04-ad769df2974c",
+      "mode": "pomodoro",
+      "startedAt": "2026-04-03T05:30:00.000Z",
+      "endedAt": "2026-04-03T06:25:00.000Z",
+      "durationSeconds": 3300,
+      "isActive": false,
+      "isPaused": false
+    },
+    {
+      "id": "f0f3ec31-390a-4ac2-8694-61f2f7e503f8",
+      "mode": "standard",
+      "startedAt": "2026-04-01T04:30:00.000Z",
+      "endedAt": "2026-04-01T05:35:00.000Z",
+      "durationSeconds": 3900,
+      "isActive": false,
+      "isPaused": false
+    },
+    {
+      "id": "79017634-f5db-40e6-a57d-f54ecf4d464b",
+      "mode": "pomodoro",
+      "startedAt": "2026-03-31T05:30:00.000Z",
+      "endedAt": "2026-03-31T06:45:00.000Z",
+      "durationSeconds": 4500,
+      "isActive": false,
+      "isPaused": false
+    },
+    {
+      "id": "92648fc8-4eeb-4056-8b71-4feab5b120ae",
+      "mode": "standard",
+      "startedAt": "2026-03-29T04:30:00.000Z",
+      "endedAt": "2026-03-29T05:55:00.000Z",
+      "durationSeconds": 5100,
+      "isActive": false,
+      "isPaused": false
+    },
+    {
+      "id": "424dbb96-50f4-4e0f-864b-4c344fb1d1cd",
+      "mode": "pomodoro",
+      "startedAt": "2026-03-28T05:30:00.000Z",
+      "endedAt": "2026-03-28T07:05:00.000Z",
+      "durationSeconds": 5700,
+      "isActive": false,
+      "isPaused": false
+    },
+    {
+      "id": "ce800548-90d3-4e4e-9b40-27228af5f5a7",
+      "mode": "standard",
+      "startedAt": "2026-03-26T04:30:00.000Z",
+      "endedAt": "2026-03-26T06:15:00.000Z",
+      "durationSeconds": 6300,
+      "isActive": false,
+      "isPaused": false
+    },
+    {
+      "id": "254d9f94-6efa-4e5e-9862-12487ed52014",
+      "subjectId": "4af9016f-f287-4596-ae2c-99ddf411411f",
+      "mode": "focus",
+      "startedAt": "2026-04-05T10:08:24.090Z",
+      "endedAt": null,
+      "durationSeconds": 0,
+      "isActive": false,
+      "isPaused": false
+    },
+    {
+      "id": "9184fa11-0f9d-4ee6-9cef-603a2408b023",
+      "subjectId": "4af9016f-f287-4596-ae2c-99ddf411411f",
+      "mode": "pomodoro",
+      "startedAt": "2026-04-05T10:09:40.223Z",
+      "endedAt": "2026-04-05T10:09:47.567Z",
+      "durationSeconds": 7,
+      "isActive": false,
+      "isPaused": false
+    },
+    {
+      "id": "9f4d7663-36f4-4b4a-8642-bd1f317cd651",
+      "subjectId": "4af9016f-f287-4596-ae2c-99ddf411411f",
+      "mode": "focus",
+      "startedAt": "2026-04-05T10:13:27.006Z",
+      "endedAt": null,
+      "durationSeconds": 3,
+      "isActive": false,
+      "isPaused": false
+    },
+    {
+      "id": "b204840e-fccf-4768-a957-42b38b3cebdb",
+      "subjectId": "4af9016f-f287-4596-ae2c-99ddf411411f",
+      "mode": "focus",
+      "startedAt": "2026-04-05T10:13:29.390Z",
+      "endedAt": null,
+      "durationSeconds": 0,
+      "isActive": false,
+      "isPaused": false
+    },
+    {
+      "id": "bc51ec6f-d232-4c25-9260-bd3b9828184f",
+      "subjectId": "4af9016f-f287-4596-ae2c-99ddf411411f",
+      "mode": "focus",
+      "startedAt": "2026-04-05T10:13:32.301Z",
+      "endedAt": "2026-04-05T10:13:33.878Z",
+      "durationSeconds": 1,
+      "isActive": false,
+      "isPaused": false
+    },
+    {
+      "id": "af8320c7-cf32-470f-a792-311518f2ae77",
+      "subjectId": "4af9016f-f287-4596-ae2c-99ddf411411f",
+      "mode": "focus",
+      "startedAt": "2026-04-05T11:09:24.693Z",
+      "endedAt": null,
+      "durationSeconds": 33,
+      "isActive": true,
+      "isPaused": true
+    }
+  ]
+}
