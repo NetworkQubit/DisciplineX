@@ -141,6 +141,119 @@ export const getWorkspace = asyncHandler(async (req, res) => {
   res.json(useLocalStore() ? await getLocalWorkspace() : await loadMongoWorkspace(getMongoUser(req)));
 });
 
+export const exportWorkspace = asyncHandler(async (req, res) => {
+  const workspace = useLocalStore() ? await getLocalWorkspace() : await loadMongoWorkspace(getMongoUser(req));
+
+  res.json({
+    exportedAt: new Date().toISOString(),
+    version: 1,
+    workspace
+  });
+});
+
+export const importWorkspace = asyncHandler(async (req, res) => {
+  if (useLocalStore()) {
+    res.status(501);
+    throw new Error("Import is only available when MongoDB is connected.");
+  }
+
+  const user = getMongoUser(req);
+  const payload = req.body?.workspace;
+
+  if (!payload || typeof payload !== "object") {
+    res.status(422);
+    throw new Error("Import payload is invalid.");
+  }
+
+  const subjects = Array.isArray(payload.subjects) ? payload.subjects : [];
+  const tasks = Array.isArray(payload.tasks) ? payload.tasks : [];
+  const sessions = Array.isArray(payload.sessions) ? payload.sessions : [];
+  const calendarBlocks = Array.isArray(payload.calendarBlocks) ? payload.calendarBlocks : [];
+  const importedProfile = payload.profile || {};
+
+  await Promise.all([
+    Subject.deleteMany({ user: user._id }),
+    Task.deleteMany({ user: user._id }),
+    StudySession.deleteMany({ user: user._id }),
+    ScheduleBlock.deleteMany({ user: user._id })
+  ]);
+
+  await User.findByIdAndUpdate(user._id, {
+    bio: typeof importedProfile.bio === "string" ? importedProfile.bio : "Personal study workspace",
+    studyGoalMinutes: Number(importedProfile.studyGoalMinutes) || 240,
+    preferences: {
+      theme: importedProfile.preferences?.theme || "system",
+      websiteBlockingEnabled: Boolean(importedProfile.preferences?.websiteBlockingEnabled),
+      pomodoroFocusMinutes: Number(importedProfile.preferences?.pomodoroFocusMinutes) || 25,
+      pomodoroBreakMinutes: Number(importedProfile.preferences?.pomodoroBreakMinutes) || 5
+    }
+  });
+
+  const subjectMap = new Map();
+
+  if (subjects.length) {
+    const createdSubjects = await Subject.insertMany(
+      subjects.map((subject) => ({
+        user: user._id,
+        name: subject.name,
+        color: subject.color,
+        goalMinutes: Number(subject.goalMinutes) || 90,
+        icon: subject.icon || "BookOpen"
+      }))
+    );
+
+    subjects.forEach((subject, index) => {
+      subjectMap.set(String(subject.id || subject._id || subject.name), createdSubjects[index]._id);
+    });
+  }
+
+  if (tasks.length) {
+    await Task.insertMany(
+      tasks.map((task, index) => ({
+        user: user._id,
+        subject: task.subject?._id ? subjectMap.get(String(task.subject._id)) : undefined,
+        title: task.title,
+        priority: task.priority || "medium",
+        status: task.completed || task.status === "done" ? "done" : task.status || "todo",
+        position: Number(task.position) || index
+      }))
+    );
+  }
+
+  if (sessions.length) {
+    await StudySession.insertMany(
+      sessions.map((session) => ({
+        user: user._id,
+        subject: session.subject?._id ? subjectMap.get(String(session.subject._id)) : undefined,
+        mode: session.mode || "focus",
+        startedAt: session.startedAt ? new Date(session.startedAt) : new Date(),
+        endedAt: session.endedAt ? new Date(session.endedAt) : null,
+        durationSeconds: Number(session.durationSeconds) || 0,
+        isActive: Boolean(session.isActive),
+        isPaused: Boolean(session.isPaused)
+      }))
+    );
+  }
+
+  if (calendarBlocks.length) {
+    await ScheduleBlock.insertMany(
+      calendarBlocks.map((block) => ({
+        user: user._id,
+        title: block.title,
+        type: block.type || "study",
+        source: block.source || "manual",
+        subject: block.subject?._id ? subjectMap.get(String(block.subject._id)) : undefined,
+        startAt: new Date(block.startAt),
+        endAt: new Date(block.endAt),
+        recurrence: block.recurrence || null
+      }))
+    );
+  }
+
+  await recalculateUserStats(user._id);
+  return res.json(await loadMongoWorkspace(user));
+});
+
 export const updateProfile = asyncHandler(async (req, res) => {
   if (useLocalStore()) {
     return res.json(await updateLocalProfile(req.body));

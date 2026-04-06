@@ -7,7 +7,9 @@ import {
   deleteCalendarBlock,
   deleteSubject,
   deleteTask,
+  exportWorkspace,
   getWorkspace,
+  importWorkspace,
   pauseSession,
   reorderTasks,
   resetWorkspace,
@@ -21,6 +23,8 @@ import {
 const router = express.Router();
 
 router.get("/", getWorkspace);
+router.get("/export", exportWorkspace);
+router.post("/import", importWorkspace);
 router.patch("/profile", updateProfile);
 router.post("/subjects", createSubject);
 router.patch("/subjects/:subjectId", updateSubject);

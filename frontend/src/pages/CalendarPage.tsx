@@ -83,6 +83,21 @@ function blocksForDate(blocksByDate: Map<string, CalendarBlock[]>, day: Date) {
   return blocksByDate.get(dateKey(day)) || [];
 }
 
+function toGoogleCalendarTime(value: string) {
+  return new Date(value).toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
+}
+
+function buildGoogleCalendarUrl(payload: { title: string; startAt: string; endAt: string; details?: string }) {
+  const params = new URLSearchParams({
+    action: "TEMPLATE",
+    text: payload.title,
+    dates: `${toGoogleCalendarTime(payload.startAt)}/${toGoogleCalendarTime(payload.endAt)}`,
+    details: payload.details || "Synced from DisciplineX"
+  });
+
+  return `https://calendar.google.com/calendar/render?${params.toString()}`;
+}
+
 function WeekEventColumn({
   day,
   blocks,
@@ -197,6 +212,26 @@ export function CalendarPage({
     setTitle("");
   }
 
+  function handleSyncGoogleCalendar() {
+    const sourceBlock = selectedBlocks[0];
+    const draftStartAt = new Date(`${date}T${startTime}:00`).toISOString();
+    const draftEndAt = new Date(`${date}T${endTime}:00`).toISOString();
+    const titleToUse = sourceBlock?.title || title.trim() || "Study Block";
+    const startAtToUse = sourceBlock?.startAt || draftStartAt;
+    const endAtToUse = sourceBlock?.endAt || draftEndAt;
+
+    window.open(
+      buildGoogleCalendarUrl({
+        title: titleToUse,
+        startAt: startAtToUse,
+        endAt: endAtToUse,
+        details: sourceBlock ? recurrenceLabel(sourceBlock) : "Created from DisciplineX calendar"
+      }),
+      "_blank",
+      "noopener,noreferrer"
+    );
+  }
+
   function shiftAnchor(direction: -1 | 1) {
     const next = new Date(anchorDate);
 
@@ -276,7 +311,7 @@ export function CalendarPage({
           </div>
         </section>
 
-        <section className="rounded-[32px] border border-white/30 bg-white/80 p-6 shadow-glow backdrop-blur dark:border-white/10 dark:bg-slate-900/70">
+        <section className="rounded-[32px] border border-white/30 bg-white/80 p-5 shadow-glow backdrop-blur dark:border-white/10 dark:bg-slate-900/70 sm:p-6">
           <h3 className="text-xl font-semibold">Add time block</h3>
           <div className="mt-5 grid gap-3">
             <input value={title} onChange={(event) => setTitle(event.target.value)} placeholder="Event title" className="rounded-2xl border border-slate-200 bg-white px-4 py-3 dark:border-white/10 dark:bg-slate-950/50" />
@@ -291,7 +326,7 @@ export function CalendarPage({
               <input type="time" value={startTime} onChange={(event) => setStartTime(event.target.value)} className="rounded-2xl border border-slate-200 bg-white px-4 py-3 dark:border-white/10 dark:bg-slate-950/50" />
               <input type="time" value={endTime} onChange={(event) => setEndTime(event.target.value)} className="rounded-2xl border border-slate-200 bg-white px-4 py-3 dark:border-white/10 dark:bg-slate-950/50" />
             </div>
-            <div className="grid grid-cols-[1fr_120px] gap-3">
+            <div className="grid gap-3 sm:grid-cols-[1fr_120px]">
               <select
                 value={repeatFrequency}
                 onChange={(event) => setRepeatFrequency(event.target.value as "none" | "daily" | "weekly")}
@@ -314,13 +349,19 @@ export function CalendarPage({
             <button className="rounded-2xl bg-slate-950 px-4 py-3 text-white" onClick={() => void handleAddBlock()}>
               Save Event
             </button>
+            <button
+              className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-700 dark:border-white/10 dark:bg-slate-950/50 dark:text-slate-100"
+              onClick={handleSyncGoogleCalendar}
+            >
+              Sync Google Calendar
+            </button>
           </div>
         </section>
       </aside>
 
-      <section className="rounded-[32px] border border-white/30 bg-white/80 p-4 shadow-glow backdrop-blur dark:border-white/10 dark:bg-slate-900/70">
-        <div className="mb-4 flex flex-wrap items-center justify-between gap-3 px-2 pt-2">
-          <div className="flex items-center gap-2">
+      <section className="order-first rounded-[32px] border border-white/30 bg-white/80 p-4 shadow-glow backdrop-blur dark:border-white/10 dark:bg-slate-900/70 xl:order-none">
+        <div className="mb-4 flex flex-col gap-3 px-1 pt-2 sm:px-2 xl:flex-row xl:flex-wrap xl:items-center xl:justify-between">
+          <div className="flex items-center gap-2 overflow-x-auto pb-1">
             <button className="rounded-2xl bg-slate-100 px-3 py-2 dark:bg-slate-950/50" onClick={() => shiftAnchor(-1)}>
               <ChevronLeft className="h-4 w-4" />
             </button>
@@ -332,15 +373,15 @@ export function CalendarPage({
             </button>
           </div>
 
-          <div>
+          <div className="min-w-0">
             <p className="text-lg font-semibold">{periodLabel}</p>
           </div>
 
-          <div className="flex rounded-2xl bg-slate-100 p-1 dark:bg-slate-950/50">
+          <div className="flex w-full rounded-2xl bg-slate-100 p-1 dark:bg-slate-950/50 sm:w-auto">
             {(["month", "week", "day"] as const).map((mode) => (
               <button
                 key={mode}
-                className={`rounded-xl px-4 py-2 text-sm font-medium transition ${
+                className={`flex-1 rounded-xl px-4 py-2 text-sm font-medium transition sm:flex-none ${
                   viewMode === mode ? "bg-slate-950 text-white" : "text-slate-500 dark:text-slate-300"
                 }`}
                 onClick={() => setViewMode(mode)}

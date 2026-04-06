@@ -6,6 +6,16 @@ export async function fetchWorkspace() {
   return data;
 }
 
+export async function exportWorkspaceData() {
+  const { data } = await api.get("/workspace/export");
+  return data;
+}
+
+export async function importWorkspaceData(payload: Record<string, unknown>) {
+  const { data } = await api.post<WorkspaceData>("/workspace/import", payload);
+  return data;
+}
+
 export async function patchProfile(payload: Record<string, unknown>) {
   const { data } = await api.patch<WorkspaceData>("/workspace/profile", payload);
   return data;

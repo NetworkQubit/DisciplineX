@@ -3,7 +3,9 @@ import {
   CalendarDays,
   ChevronLeft,
   ChevronRight,
+  Download,
   Flame,
+  FolderUp,
   LayoutDashboard,
   ListTodo,
   LogOut,
@@ -12,7 +14,7 @@ import {
   SunMedium,
   Timer
 } from "lucide-react";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useState, type ChangeEvent, type ReactNode } from "react";
 import { NavLink } from "react-router-dom";
 import { cn } from "../../lib/utils";
 import type { Profile } from "../../types";
@@ -30,6 +32,8 @@ type AppShellProps = {
   children: ReactNode;
   profile?: Profile | null;
   saving?: boolean;
+  onExportData?: () => Promise<void>;
+  onImportData?: (file: File) => Promise<void>;
   onLogout?: () => void;
 };
 
@@ -53,7 +57,7 @@ function getInitials(name?: string) {
     .slice(0, 2);
 }
 
-export function AppShell({ children, profile, saving = false, onLogout }: AppShellProps) {
+export function AppShell({ children, profile, saving = false, onExportData, onImportData, onLogout }: AppShellProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [theme, setTheme] = useState<ThemeMode>(() => {
     if (typeof window === "undefined") {
@@ -88,6 +92,17 @@ export function AppShell({ children, profile, saving = false, onLogout }: AppShe
       setTheme(preferenceTheme);
     }
   }, [profile?.preferences?.theme]);
+
+  async function handleImportFile(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+
+    if (!file || !onImportData) {
+      return;
+    }
+
+    await onImportData(file);
+    event.target.value = "";
+  }
 
   return (
     <div className="min-h-screen bg-slate-100 text-slate-900 transition-colors duration-300 dark:bg-slate-950 dark:text-slate-50">
@@ -145,19 +160,49 @@ export function AppShell({ children, profile, saving = false, onLogout }: AppShe
                 </div>
               </div>
             </div>
+            <div className="mt-5 grid gap-2">
+              <button
+                className="flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 dark:border-white/10 dark:bg-white/5 dark:text-slate-200"
+                onClick={() => void onExportData?.()}
+              >
+                <Download className="h-4 w-4" />
+                Export Data
+              </button>
+              <label className="flex cursor-pointer items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 dark:border-white/10 dark:bg-white/5 dark:text-slate-200">
+                <FolderUp className="h-4 w-4" />
+                Import Data
+                <input type="file" accept="application/json" className="hidden" onChange={(event) => void handleImportFile(event)} />
+              </label>
+            </div>
           </div>
         </aside>
 
         <div className="flex min-w-0 flex-1 flex-col pb-24 lg:pb-0">
           <div className="mb-4 rounded-[28px] border border-slate-200 bg-white px-4 py-4 text-slate-900 shadow-sm dark:border-white/10 dark:bg-slate-900 dark:text-white lg:hidden">
-            <div className="flex items-start justify-between gap-4">
-              <p className="text-xs uppercase tracking-[0.3em] text-teal-600 dark:text-teal-300/70">DisciplineX</p>
-              <button
-                className="rounded-2xl border border-slate-200 bg-white p-3 dark:border-white/10 dark:bg-white/5"
-                onClick={() => setTheme((value) => (value === "light" ? "dark" : "light"))}
-              >
-                {theme === "light" ? <MoonStar className="h-4 w-4" /> : <SunMedium className="h-4 w-4" />}
-              </button>
+            <div className="space-y-4">
+              <div className="flex items-start justify-between gap-4">
+                <p className="text-xs uppercase tracking-[0.3em] text-teal-600 dark:text-teal-300/70">DisciplineX</p>
+                <button
+                  className="rounded-2xl border border-slate-200 bg-white p-3 dark:border-white/10 dark:bg-white/5"
+                  onClick={() => setTheme((value) => (value === "light" ? "dark" : "light"))}
+                >
+                  {theme === "light" ? <MoonStar className="h-4 w-4" /> : <SunMedium className="h-4 w-4" />}
+                </button>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  className="flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm dark:border-white/10 dark:bg-white/5"
+                  onClick={() => void onExportData?.()}
+                >
+                  <Download className="h-4 w-4" />
+                  Export
+                </button>
+                <label className="flex cursor-pointer items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm dark:border-white/10 dark:bg-white/5">
+                  <FolderUp className="h-4 w-4" />
+                  Import
+                  <input type="file" accept="application/json" className="hidden" onChange={(event) => void handleImportFile(event)} />
+                </label>
+              </div>
             </div>
           </div>
 
@@ -199,14 +244,14 @@ export function AppShell({ children, profile, saving = false, onLogout }: AppShe
       </div>
 
       <nav className="fixed inset-x-3 bottom-3 z-20 rounded-[28px] border border-white/50 bg-white/88 p-2 text-slate-900 shadow-[0_20px_50px_rgba(148,163,184,0.24)] backdrop-blur-xl dark:border-white/10 dark:bg-slate-950/90 dark:text-white dark:shadow-[0_18px_60px_rgba(2,6,23,0.5)] lg:hidden">
-        <div className="grid grid-cols-6 gap-2">
+        <div className="flex gap-2 overflow-x-auto pb-1">
           {links.map(({ to, label, icon: Icon }) => (
             <NavLink
               key={to}
               to={to}
               className={({ isActive }) =>
                 cn(
-                  "flex flex-col items-center justify-center gap-1 rounded-2xl border border-transparent bg-transparent px-3 py-3 text-xs outline-none transition focus-visible:ring-1 focus-visible:ring-teal-300/30",
+                  "flex min-w-[88px] shrink-0 flex-col items-center justify-center gap-1 rounded-2xl border border-transparent bg-transparent px-3 py-3 text-xs outline-none transition focus-visible:ring-1 focus-visible:ring-teal-300/30",
                   isActive
                     ? "bg-slate-950 text-white dark:border-teal-400/30 dark:bg-slate-800/90 dark:text-teal-100"
                     : "text-slate-500 dark:text-slate-400 dark:hover:border-white/10 dark:hover:bg-slate-800/70 dark:hover:text-white"

@@ -5,7 +5,9 @@ import {
   createSubject,
   createTask,
   deleteCalendarBlock,
+  exportWorkspaceData,
   fetchWorkspace,
+  importWorkspaceData,
   patchProfile,
   patchSubject,
   patchTask,
@@ -93,6 +95,8 @@ export function useWorkspaceData(enabled = true) {
       addCalendarBlock: (payload: Record<string, unknown>) => runAction(() => createCalendarBlock(payload)),
       deleteCalendarEvent: (blockId: string) => runAction(() => deleteCalendarBlock(blockId)),
       runAutoSchedule: () => runAction(autoScheduleTasks),
+      exportWorkspace: () => exportWorkspaceData(),
+      importWorkspace: (payload: Record<string, unknown>) => runAction(() => importWorkspaceData(payload)),
       startFocusSession: (payload: Record<string, unknown>) => runAction(() => startSession(payload)),
       togglePauseSession: (sessionId: string, isPaused: boolean) =>
         runAction(() => pauseSession(sessionId, { isPaused })),

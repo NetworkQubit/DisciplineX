@@ -1,5 +1,5 @@
 import { AxiosError } from "axios";
-import { useEffect, useState } from "react";
+import { Suspense, lazy, useEffect, useState } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import {
   confirmForgotPassword,
@@ -10,14 +10,15 @@ import {
 } from "../api/auth";
 import { AppShell } from "../components/layout/AppShell";
 import { useWorkspaceData } from "../hooks/useWorkspaceData";
-import { AuthPage } from "../pages/AuthPage";
-import { CalendarPage } from "../pages/CalendarPage";
-import { DashboardPage } from "../pages/DashboardPage";
-import { ReportsPage } from "../pages/ReportsPage";
-import { SettingsPage } from "../pages/SettingsPage";
-import { TasksPage } from "../pages/TasksPage";
-import { TimerPage } from "../pages/TimerPage";
 import type { AuthUser } from "../types";
+
+const AuthPage = lazy(() => import("../pages/AuthPage").then((module) => ({ default: module.AuthPage })));
+const CalendarPage = lazy(() => import("../pages/CalendarPage").then((module) => ({ default: module.CalendarPage })));
+const DashboardPage = lazy(() => import("../pages/DashboardPage").then((module) => ({ default: module.DashboardPage })));
+const ReportsPage = lazy(() => import("../pages/ReportsPage").then((module) => ({ default: module.ReportsPage })));
+const SettingsPage = lazy(() => import("../pages/SettingsPage").then((module) => ({ default: module.SettingsPage })));
+const TasksPage = lazy(() => import("../pages/TasksPage").then((module) => ({ default: module.TasksPage })));
+const TimerPage = lazy(() => import("../pages/TimerPage").then((module) => ({ default: module.TimerPage })));
 
 export function AppRouter() {
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
@@ -40,7 +41,9 @@ export function AppRouter() {
     startFocusSession,
     togglePauseSession,
     stopFocusSession,
-    clearAllData
+    clearAllData,
+    exportWorkspace,
+    importWorkspace
   } = useWorkspaceData(Boolean(authUser));
 
   useEffect(() => {
@@ -104,6 +107,29 @@ export function AppRouter() {
     setAuthError(null);
   }
 
+  async function handleExportData() {
+    const data = await exportWorkspace();
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `disciplinex-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    link.click();
+    window.URL.revokeObjectURL(url);
+  }
+
+  async function handleImportData(file: File) {
+    const text = await file.text();
+    const parsed = JSON.parse(text) as Record<string, unknown>;
+    await importWorkspace(parsed);
+  }
+
+  const routeFallback = (
+    <div className="rounded-[32px] border border-white/30 bg-white/80 p-10 shadow-glow backdrop-blur dark:border-white/10 dark:bg-slate-900/70">
+      <p className="text-lg font-medium">Loading view...</p>
+    </div>
+  );
+
   if (authLoading) {
     return (
       <div className="min-h-screen bg-slate-950 px-6 py-16 text-white">
@@ -116,21 +142,23 @@ export function AppRouter() {
 
   if (!authUser) {
     return (
-      <AuthPage
-        onLogin={(payload) => handleAuthAction(() => loginUser(payload))}
-        onRegister={(payload) => handleAuthAction(() => registerUser(payload))}
-        onForgotPassword={(payload) => requestForgotPassword(payload).then((result) => result.message)}
-        onConfirmForgotPassword={(payload) => confirmForgotPassword(payload).then((result) => result.message)}
-        error={authError}
-        loading={authSaving}
-      />
+      <Suspense fallback={routeFallback}>
+        <AuthPage
+          onLogin={(payload) => handleAuthAction(() => loginUser(payload))}
+          onRegister={(payload) => handleAuthAction(() => registerUser(payload))}
+          onForgotPassword={(payload) => requestForgotPassword(payload).then((result) => result.message)}
+          onConfirmForgotPassword={(payload) => confirmForgotPassword(payload).then((result) => result.message)}
+          error={authError}
+          loading={authSaving}
+        />
+      </Suspense>
     );
   }
 
   if (loading || !workspace) {
     return (
       <BrowserRouter>
-        <AppShell profile={workspace?.profile} saving={saving} onLogout={handleLogout}>
+        <AppShell profile={workspace?.profile} saving={saving} onExportData={handleExportData} onImportData={handleImportData} onLogout={handleLogout}>
           <div className="rounded-[32px] border border-white/30 bg-white/80 p-10 shadow-glow backdrop-blur dark:border-white/10 dark:bg-slate-900/70">
             <p className="text-lg font-medium">Loading your workspace...</p>
             {error ? <p className="mt-2 text-sm text-rose-500">{error}</p> : null}
@@ -142,8 +170,9 @@ export function AppRouter() {
 
   return (
     <BrowserRouter>
-      <AppShell profile={workspace.profile} saving={saving} onLogout={handleLogout}>
-        <Routes>
+      <AppShell profile={workspace.profile} saving={saving} onExportData={handleExportData} onImportData={handleImportData} onLogout={handleLogout}>
+        <Suspense fallback={routeFallback}>
+          <Routes>
           <Route
             path="/"
             element={
@@ -195,7 +224,8 @@ export function AppRouter() {
               />
             }
           />
-        </Routes>
+          </Routes>
+        </Suspense>
         {error ? (
           <div className="mt-6 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-500/20 dark:bg-rose-950/20 dark:text-rose-200">
             {error}
