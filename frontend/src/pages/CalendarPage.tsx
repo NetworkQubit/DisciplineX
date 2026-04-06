@@ -212,13 +212,31 @@ export function CalendarPage({
     setTitle("");
   }
 
-  function handleSyncGoogleCalendar() {
+  async function handleSyncGoogleCalendar() {
     const sourceBlock = selectedBlocks[0];
     const draftStartAt = new Date(`${date}T${startTime}:00`).toISOString();
     const draftEndAt = new Date(`${date}T${endTime}:00`).toISOString();
     const titleToUse = sourceBlock?.title || title.trim() || "Study Block";
     const startAtToUse = sourceBlock?.startAt || draftStartAt;
     const endAtToUse = sourceBlock?.endAt || draftEndAt;
+
+    if (!sourceBlock && title.trim()) {
+      await onAddBlock({
+        title: title.trim(),
+        type,
+        startAt: startAtToUse,
+        endAt: endAtToUse,
+        recurrence:
+          repeatFrequency === "none"
+            ? null
+            : {
+                frequency: repeatFrequency,
+                count: repeatCount,
+                interval: 1
+              }
+      });
+      setTitle("");
+    }
 
     window.open(
       buildGoogleCalendarUrl({
@@ -351,9 +369,9 @@ export function CalendarPage({
             </button>
             <button
               className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-700 dark:border-white/10 dark:bg-slate-950/50 dark:text-slate-100"
-              onClick={handleSyncGoogleCalendar}
+              onClick={() => void handleSyncGoogleCalendar()}
             >
-              Sync Google Calendar
+              Save & Sync Google Calendar
             </button>
           </div>
         </section>
