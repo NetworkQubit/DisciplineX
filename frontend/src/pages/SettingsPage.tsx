@@ -5,7 +5,6 @@ import type { WorkspaceData } from "../types";
 type SettingsPageProps = {
   workspace: WorkspaceData;
   onUpdateProfile: (payload: Record<string, unknown>) => Promise<void>;
-  onResetPassword: (payload: { currentPassword: string; newPassword: string }) => Promise<void>;
   onAddSubject: (payload: { name: string; color: string; goalMinutes: number }) => Promise<void>;
   onDeleteSubject: (subjectId: string) => Promise<void>;
   onResetWorkspace: () => Promise<void>;
@@ -14,7 +13,6 @@ type SettingsPageProps = {
 export function SettingsPage({
   workspace,
   onUpdateProfile,
-  onResetPassword,
   onAddSubject,
   onDeleteSubject,
   onResetWorkspace
@@ -25,10 +23,6 @@ export function SettingsPage({
   const [theme, setTheme] = useState<"light" | "dark" | "system">(workspace.profile.preferences.theme);
   const [pomodoroFocusMinutes, setPomodoroFocusMinutes] = useState(workspace.profile.preferences.pomodoroFocusMinutes);
   const [pomodoroBreakMinutes, setPomodoroBreakMinutes] = useState(workspace.profile.preferences.pomodoroBreakMinutes);
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [passwordMessage, setPasswordMessage] = useState("");
   const [subjectName, setSubjectName] = useState("");
   const [subjectColor, setSubjectColor] = useState("#14B8A6");
   const [subjectGoal, setSubjectGoal] = useState(90);
@@ -54,28 +48,6 @@ export function SettingsPage({
         pomodoroBreakMinutes
       }
     });
-  }
-
-  async function handleResetPassword() {
-    if (!currentPassword || !newPassword) {
-      setPasswordMessage("Fill in both password fields.");
-      return;
-    }
-
-    if (newPassword !== confirmPassword) {
-      setPasswordMessage("New passwords do not match.");
-      return;
-    }
-
-    try {
-      await onResetPassword({ currentPassword, newPassword });
-      setCurrentPassword("");
-      setNewPassword("");
-      setConfirmPassword("");
-      setPasswordMessage("Password updated successfully.");
-    } catch {
-      setPasswordMessage("Password reset could not be completed.");
-    }
   }
 
   async function handleAddSubject() {
@@ -184,37 +156,6 @@ export function SettingsPage({
       </section>
 
       <div className="space-y-6">
-        <section className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-slate-900">
-          <h3 className="text-xl font-semibold">Password reset</h3>
-          <div className="mt-5 grid gap-3">
-            <input
-              type="password"
-              value={currentPassword}
-              onChange={(event) => setCurrentPassword(event.target.value)}
-              placeholder="Current password"
-              className="rounded-2xl border border-slate-200 bg-white px-4 py-3 dark:border-white/10 dark:bg-slate-950/50"
-            />
-            <input
-              type="password"
-              value={newPassword}
-              onChange={(event) => setNewPassword(event.target.value)}
-              placeholder="New password"
-              className="rounded-2xl border border-slate-200 bg-white px-4 py-3 dark:border-white/10 dark:bg-slate-950/50"
-            />
-            <input
-              type="password"
-              value={confirmPassword}
-              onChange={(event) => setConfirmPassword(event.target.value)}
-              placeholder="Confirm new password"
-              className="rounded-2xl border border-slate-200 bg-white px-4 py-3 dark:border-white/10 dark:bg-slate-950/50"
-            />
-            <button className="rounded-2xl bg-slate-950 px-4 py-3 text-white" onClick={() => void handleResetPassword()}>
-              Reset Password
-            </button>
-            {passwordMessage ? <p className="text-sm text-slate-500 dark:text-slate-400">{passwordMessage}</p> : null}
-          </div>
-        </section>
-
         <section className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-slate-900">
           <h3 className="text-xl font-semibold">Subjects</h3>
           <div className="mt-5 grid gap-3">

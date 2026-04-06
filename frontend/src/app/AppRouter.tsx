@@ -7,7 +7,6 @@ import {
   loginUser,
   registerUser,
   requestForgotPassword,
-  resetPassword
 } from "../api/auth";
 import { AppShell } from "../components/layout/AppShell";
 import { useWorkspaceData } from "../hooks/useWorkspaceData";
@@ -190,7 +189,6 @@ export function AppRouter() {
               <SettingsPage
                 workspace={workspace}
                 onUpdateProfile={updateProfile}
-                onResetPassword={(payload) => resetPassword(payload).then(() => undefined)}
                 onAddSubject={addSubject}
                 onDeleteSubject={deleteSubject}
                 onResetWorkspace={clearAllData}
