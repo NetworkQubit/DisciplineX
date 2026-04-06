@@ -31,6 +31,21 @@ function formatLiveClock(activeSession: Session | null, now: number) {
   return `${hours}:${minutes}:${seconds}`;
 }
 
+function getElapsedSeconds(activeSession: Session | null, now: number) {
+  if (!activeSession) {
+    return 0;
+  }
+
+  if (activeSession.isPaused) {
+    return activeSession.durationSeconds || 0;
+  }
+
+  return Math.max(
+    activeSession.durationSeconds || 0,
+    (activeSession.durationSeconds || 0) + Math.floor((now - new Date(activeSession.startedAt).getTime()) / 1000)
+  );
+}
+
 export function TimerPanel({
   profile,
   subjects,
@@ -44,6 +59,7 @@ export function TimerPanel({
   const [mode, setMode] = useState<"standard" | "pomodoro" | "focus">("focus");
   const [now, setNow] = useState(Date.now());
   const isPomodoroEnabled = (activeSession?.mode || mode) === "pomodoro";
+  const elapsedSeconds = getElapsedSeconds(activeSession, now);
 
   useEffect(() => {
     setSelectedSubjectId((current) => current || subjects[0]?.id || "");
@@ -65,24 +81,63 @@ export function TimerPanel({
     () => subjects.find((subject) => subject.id === selectedSubjectId),
     [subjects, selectedSubjectId]
   );
+  const targetMinutes = isPomodoroEnabled ? profile.preferences.pomodoroFocusMinutes : 60;
+  const targetSeconds = Math.max(1, targetMinutes * 60);
+  const progress = Math.min(1, elapsedSeconds / targetSeconds);
+  const circumference = 2 * Math.PI * 120;
+  const strokeOffset = circumference - progress * circumference;
 
   return (
     <section className="rounded-[28px] border border-slate-200 bg-white p-5 text-slate-900 shadow-sm sm:p-8 dark:border-white/10 dark:bg-slate-900 dark:text-white">
-      <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
-        <div>
-          <p className="text-sm uppercase tracking-[0.3em] text-slate-400">Focus mode</p>
-          <h2 className="mt-4 break-all text-4xl font-semibold tracking-tight sm:text-5xl lg:text-6xl">
-            {formatLiveClock(activeSession, now)}
-          </h2>
-          <p className="mt-3 text-slate-500 dark:text-slate-400">
-            {selectedSubject?.name || activeSession?.subject?.name || "General Focus"} · {formatMode(activeSession?.mode || mode)}
-          </p>
-          <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
-            Pomodoro cycle: {profile.preferences.pomodoroFocusMinutes}/{profile.preferences.pomodoroBreakMinutes}
-          </p>
+      <div className="grid gap-8 xl:grid-cols-[1.15fr_0.85fr]">
+        <div className="rounded-[32px] border border-slate-200 bg-[radial-gradient(circle_at_top,_rgba(20,184,166,0.12),_transparent_50%),linear-gradient(180deg,_rgba(255,255,255,0.98),_rgba(241,245,249,0.9))] p-6 dark:border-white/10 dark:bg-[radial-gradient(circle_at_top,_rgba(45,212,191,0.14),_transparent_45%),linear-gradient(180deg,_rgba(15,23,42,0.98),_rgba(15,23,42,0.84))]">
+          <div className="flex flex-col items-center text-center">
+            <div className="relative flex h-[320px] w-[320px] items-center justify-center">
+              <svg viewBox="0 0 280 280" className="absolute inset-0 h-full w-full -rotate-90">
+                <circle cx="140" cy="140" r="120" fill="transparent" stroke="rgba(148,163,184,0.18)" strokeWidth="16" />
+                <circle
+                  cx="140"
+                  cy="140"
+                  r="120"
+                  fill="transparent"
+                  stroke="url(#timerGradient)"
+                  strokeWidth="16"
+                  strokeLinecap="round"
+                  strokeDasharray={circumference}
+                  strokeDashoffset={strokeOffset}
+                />
+                <defs>
+                  <linearGradient id="timerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#14B8A6" />
+                    <stop offset="100%" stopColor="#0F766E" />
+                  </linearGradient>
+                </defs>
+              </svg>
+
+              <div className="relative z-10 flex h-[240px] w-[240px] flex-col items-center justify-center rounded-full border border-white/60 bg-white/75 shadow-[0_20px_60px_rgba(15,23,42,0.08)] backdrop-blur dark:border-white/10 dark:bg-slate-950/70">
+                <p className="text-xs uppercase tracking-[0.34em] text-slate-400">
+                  {isPomodoroEnabled ? "Pomodoro cycle" : "Deep focus"}
+                </p>
+                <h2 className="mt-4 text-4xl font-semibold tracking-tight sm:text-5xl">
+                  {formatLiveClock(activeSession, now)}
+                </h2>
+                <p className="mt-3 max-w-[180px] text-sm text-slate-500 dark:text-slate-400">
+                  {selectedSubject?.name || activeSession?.subject?.name || "General Focus"} · {formatMode(activeSession?.mode || mode)}
+                </p>
+                <p className="mt-2 text-xs text-slate-400">
+                  Target orbit {targetMinutes} min
+                </p>
+              </div>
+            </div>
+
+            <p className="mt-4 text-sm text-slate-500 dark:text-slate-400">
+              Pomodoro cycle: {profile.preferences.pomodoroFocusMinutes}/{profile.preferences.pomodoroBreakMinutes}
+            </p>
+          </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           <button
             className="rounded-2xl bg-slate-950 px-4 py-3 font-medium text-white dark:bg-white dark:text-slate-950"
             onClick={() => void onStartSession({ subjectId: selectedSubjectId || undefined, mode })}
@@ -113,6 +168,22 @@ export function TimerPanel({
             <RefreshCw className="mx-auto mb-2 h-4 w-4" />
             {isPomodoroEnabled ? "Pomodoro On" : "Pomodoro Off"}
           </button>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-3">
+            <div className="rounded-3xl border border-slate-200 bg-slate-50 p-4 dark:border-white/10 dark:bg-white/5">
+              <p className="text-sm text-slate-500 dark:text-slate-400">Current streak</p>
+              <p className="mt-2 text-2xl font-semibold">{profile.streak} days</p>
+            </div>
+            <div className="rounded-3xl border border-slate-200 bg-slate-50 p-4 dark:border-white/10 dark:bg-white/5">
+              <p className="text-sm text-slate-500 dark:text-slate-400">Goal pace</p>
+              <p className="mt-2 text-2xl font-semibold">{profile.studyGoalMinutes} min</p>
+            </div>
+            <div className="rounded-3xl border border-slate-200 bg-slate-50 p-4 dark:border-white/10 dark:bg-white/5">
+              <p className="text-sm text-slate-500 dark:text-slate-400">Elapsed</p>
+              <p className="mt-2 text-2xl font-semibold">{formatDuration(elapsedSeconds)}</p>
+            </div>
+          </div>
         </div>
       </div>
 

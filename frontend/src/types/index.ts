@@ -122,6 +122,25 @@ export type WorkspaceAnalytics = {
   dailyTrend: Array<{ label: string; minutes: number }>;
   weeklyTrend: Array<{ label: string; minutes: number }>;
   monthlyTrend: Array<{ label: string; minutes: number }>;
+  weeklyReport: {
+    totalHours: number;
+    bestDayLabel: string;
+    weakestDayLabel: string;
+    suggestions: string[];
+    days: Array<{ label: string; minutes: number }>;
+  };
+  focusDna: {
+    title: string;
+    summary: string;
+    bestTimeOfDay: string;
+    averageFocusMinutes: number;
+    favoriteSubjects: Array<{
+      name: string;
+      minutes: number;
+      color: string;
+    }>;
+    quote: string;
+  };
 };
 
 export type WorkspaceData = {

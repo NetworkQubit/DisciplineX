@@ -14,6 +14,140 @@ function formatHourLabel(hour) {
   return `${start.toLocaleTimeString([], { hour: "numeric" })} - ${end.toLocaleTimeString([], { hour: "numeric" })}`;
 }
 
+function formatDayLabel(date) {
+  return date.toLocaleDateString([], { weekday: "short" });
+}
+
+function buildWeeklyReport(finishedSessions, now) {
+  const weekDays = Array.from({ length: 7 }, (_, index) => {
+    const day = startOfDay(new Date(now));
+    day.setDate(now.getDate() - (6 - index));
+    return day;
+  });
+
+  const dailyBuckets = weekDays.map((day) => {
+    const nextDay = new Date(day);
+    nextDay.setDate(day.getDate() + 1);
+    const minutes = Math.round(
+      finishedSessions
+        .filter((session) => {
+          const startedAt = new Date(session.startedAt);
+          return startedAt >= day && startedAt < nextDay;
+        })
+        .reduce((sum, session) => sum + session.durationSeconds, 0) / 60
+    );
+
+    return {
+      label: formatDayLabel(day),
+      minutes
+    };
+  });
+
+  const sortedByMinutes = [...dailyBuckets].sort((a, b) => b.minutes - a.minutes);
+  const totalMinutes = dailyBuckets.reduce((sum, day) => sum + day.minutes, 0);
+  const bestDay = sortedByMinutes[0];
+  const weakestDay = [...sortedByMinutes].reverse()[0];
+  const completedDays = dailyBuckets.filter((day) => day.minutes >= 45).length;
+  const suggestions = [];
+
+  if (totalMinutes === 0) {
+    suggestions.push("Start with two short focus sessions this week to generate a clearer rhythm.");
+  } else {
+    if (completedDays < 4) {
+      suggestions.push("Aim for at least four solid focus days to stabilize your weekly rhythm.");
+    }
+
+    if (bestDay && weakestDay && bestDay.label !== weakestDay.label) {
+      suggestions.push(`Protect ${bestDay.label} for deep work and use ${weakestDay.label} for lighter review blocks.`);
+    }
+
+    if (totalMinutes < 600) {
+      suggestions.push("Your weekly volume is still light, so add one extra 60-minute block on your calmest day.");
+    }
+  }
+
+  return {
+    totalHours: Number((totalMinutes / 60).toFixed(1)),
+    bestDayLabel: bestDay?.label || "Not enough data",
+    weakestDayLabel: weakestDay?.label || "Not enough data",
+    suggestions: suggestions.slice(0, 3),
+    days: dailyBuckets
+  };
+}
+
+function buildFocusDna({ finishedSessions, bestStudyTimeLabel, subjectMap }) {
+  if (!finishedSessions.length) {
+    return {
+      title: "Unmapped Focus Explorer",
+      summary: "Log a few sessions and DisciplineX will map your natural focus style.",
+      bestTimeOfDay: "Not enough data",
+      averageFocusMinutes: 0,
+      favoriteSubjects: [],
+      quote: "Your focus signature appears once your sessions start stacking up."
+    };
+  }
+
+  const averageFocusMinutes = Math.round(
+    finishedSessions.reduce((sum, session) => sum + session.durationSeconds, 0) / finishedSessions.length / 60
+  );
+
+  const hourBuckets = new Map();
+
+  for (const session of finishedSessions) {
+    const hour = new Date(session.startedAt).getHours();
+    const bucket =
+      hour < 6 ? "late-night" : hour < 12 ? "morning" : hour < 18 ? "afternoon" : "night";
+    hourBuckets.set(bucket, (hourBuckets.get(bucket) || 0) + session.durationSeconds);
+  }
+
+  const dominantBucket = [...hourBuckets.entries()].sort((a, b) => b[1] - a[1])[0]?.[0];
+  const dominantSessionMinutes = Math.max(
+    ...finishedSessions.map((session) => Math.round(session.durationSeconds / 60))
+  );
+
+  const dnaByBucket = {
+    morning: {
+      title: "Morning Precision Builder",
+      quote: "You warm up early and do your cleanest thinking before the day gets noisy."
+    },
+    afternoon: {
+      title: "Afternoon Momentum Crafter",
+      quote: "You build pressure through the day and hit your stride once momentum is on your side."
+    },
+    night: {
+      title: "Night Deep Worker",
+      quote: "Your best focus appears after the world quiets down and distractions fade."
+    },
+    "late-night": {
+      title: "Midnight Tunnel Thinker",
+      quote: "You lean into long, immersive study windows when everything else powers down."
+    }
+  };
+
+  const favoriteSubjects = Array.from(subjectMap.values())
+    .sort((a, b) => b.minutes - a.minutes)
+    .slice(0, 3)
+    .map((entry) => ({
+      name: entry.name,
+      minutes: entry.minutes,
+      color: entry.color
+    }));
+
+  const profile = dnaByBucket[dominantBucket] || {
+    title: "Balanced Focus Builder",
+    quote: "Your focus is flexible, which means you can adapt well once your study blocks are protected."
+  };
+
+  return {
+    title: profile.title,
+    summary: `Best time: ${bestStudyTimeLabel}. Average session: ${averageFocusMinutes} min. Longest recent push: ${dominantSessionMinutes} min.`,
+    bestTimeOfDay: bestStudyTimeLabel,
+    averageFocusMinutes,
+    favoriteSubjects,
+    quote: profile.quote
+  };
+}
+
 export function buildWorkspaceAnalytics({ sessions, tasks, studyGoalMinutes, streak = 0 }) {
   const finishedSessions = sessions.filter((session) => session.endedAt);
   const now = new Date();
@@ -110,6 +244,9 @@ export function buildWorkspaceAnalytics({ sessions, tasks, studyGoalMinutes, str
     };
   });
 
+  const bestStudyTimeLabel = typeof bestStudyHour === "number" ? formatHourLabel(bestStudyHour) : "Not enough data";
+  const maxHeatmapSeconds = Math.max(...heatmapMap.values(), 0);
+
   return {
     overview: {
       todayMinutes: aggregateMinutes(today),
@@ -117,19 +254,32 @@ export function buildWorkspaceAnalytics({ sessions, tasks, studyGoalMinutes, str
       monthMinutes: aggregateMinutes(monthStart),
       focusScore: Math.min(100, Math.round((aggregateMinutes(weekStart) / (25 * 7)) * 100)),
       productivityScore,
-      bestStudyTimeLabel: typeof bestStudyHour === "number" ? formatHourLabel(bestStudyHour) : "Not enough data"
+      bestStudyTimeLabel
     },
-    heatmap: Array.from(heatmapMap.entries())
-      .sort(([a], [b]) => a.localeCompare(b))
-      .map(([date, seconds]) => ({
+    heatmap: Array.from({ length: 126 }, (_, index) => {
+      const day = startOfDay(new Date(now));
+      day.setDate(now.getDate() - (125 - index));
+      const date = day.toISOString().slice(0, 10);
+      const seconds = heatmapMap.get(date) || 0;
+      const normalizedIntensity =
+        maxHeatmapSeconds > 0 ? Math.min(4, Math.ceil((seconds / maxHeatmapSeconds) * 4)) : 0;
+
+      return {
         date,
         minutes: Math.round(seconds / 60),
-        intensity: Math.min(4, Math.ceil(seconds / 3600))
-      })),
+        intensity: seconds > 0 ? Math.max(1, normalizedIntensity) : 0
+      };
+    }),
     subjectBreakdown: Array.from(subjectMap.values()),
     dailyTrend,
     weeklyTrend,
-    monthlyTrend
+    monthlyTrend,
+    weeklyReport: buildWeeklyReport(finishedSessions, now),
+    focusDna: buildFocusDna({
+      finishedSessions,
+      bestStudyTimeLabel,
+      subjectMap
+    })
   };
 }
 

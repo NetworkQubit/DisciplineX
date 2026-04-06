@@ -162,6 +162,9 @@ export function AppRouter() {
                 onStartSession={startFocusSession}
                 onPauseSession={togglePauseSession}
                 onStopSession={stopFocusSession}
+                onAddTask={addTask}
+                onToggleTask={(taskId, completed) => updateTask(taskId, { completed })}
+                onReorderTasks={reorderTaskList}
               />
             }
           />
