@@ -125,12 +125,11 @@ function SortableTaskCard({
   );
 }
 
-type LaneId = "cohort" | "personal" | "in_progress" | "will_see_later" | "done";
+type LaneId = "personal" | "in_progress" | "will_see_later" | "done";
 
-const laneOrder: LaneId[] = ["cohort", "personal", "in_progress", "will_see_later", "done"];
+const laneOrder: LaneId[] = ["personal", "in_progress", "will_see_later", "done"];
 
 const laneLabels: Record<LaneId, string> = {
-  cohort: "COHORT",
   personal: "PERSONAL",
   in_progress: "IN PROGRESS",
   will_see_later: "WILL SEE LATER",
@@ -138,7 +137,6 @@ const laneLabels: Record<LaneId, string> = {
 };
 
 const laneBorderClasses: Record<LaneId, string> = {
-  cohort: "border-cyan-400/30",
   personal: "border-fuchsia-400/30",
   in_progress: "border-amber-400/30",
   will_see_later: "border-sky-400/30",
@@ -149,8 +147,7 @@ function getLaneIdForTask(task: Task): LaneId {
   const status = task.status || "backlog";
 
   if (status === "backlog") {
-    // "Backlog" is split into two lanes based on whether the task has an assigned subject.
-    return task.subject ? "cohort" : "personal";
+    return "personal";
   }
 
   if (status === "in_progress") return "in_progress";
@@ -159,7 +156,7 @@ function getLaneIdForTask(task: Task): LaneId {
 }
 
 function laneToStatus(laneId: LaneId): Task["status"] {
-  if (laneId === "cohort" || laneId === "personal") return "backlog";
+  if (laneId === "personal") return "backlog";
   if (laneId === "in_progress") return "in_progress";
   if (laneId === "will_see_later") return "will_see_later";
   return "done";
@@ -265,24 +262,15 @@ export function TaskBoard({ tasks, subjects, onAddTask, onUpdateTask, onReorderT
     const nextStatus = laneToStatus(targetLane);
 
     const currentSubject = getSubjectFromTaskOrSubjects(activeTask, subjects);
-    const defaultCohortSubject = subjects[0] ?? null;
-
     const nextSubjectId =
       targetLane === "personal"
         ? null
-        : targetLane === "cohort"
-          ? currentSubject?.id ?? defaultCohortSubject?.id ?? null
-          : currentSubject?.id ?? null;
+        : currentSubject?.id ?? null;
 
     const updatedActiveTask: Task = {
       ...activeTask,
       status: nextStatus,
-      subject:
-        targetLane === "personal"
-          ? null
-          : targetLane === "cohort"
-            ? getTaskSubjectObject(nextSubjectId ? subjects.find((s) => s.id === nextSubjectId) ?? null : null)
-            : activeTask.subject
+      subject: targetLane === "personal" ? null : activeTask.subject
     };
 
     const withoutActive = items.filter((task) => task.id !== activeId);
@@ -309,8 +297,6 @@ export function TaskBoard({ tasks, subjects, onAddTask, onUpdateTask, onReorderT
     const updatePayload: Record<string, unknown> = { status: nextStatus };
     if (targetLane === "personal") {
       updatePayload.subjectId = undefined; // backend converts subjectId -> subject and unsets when falsy
-    } else if (targetLane === "cohort") {
-      updatePayload.subjectId = nextSubjectId ?? undefined;
     }
 
     void onUpdateTask(activeId, updatePayload);
@@ -355,7 +341,7 @@ export function TaskBoard({ tasks, subjects, onAddTask, onUpdateTask, onReorderT
         <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0">
             <h3 className="text-xl font-semibold text-white">Task Board</h3>
-            <p className="text-sm text-slate-400">Drag tasks between lanes. Backlog splits into COHORT/PERSONAL by subject.</p>
+            <p className="text-sm text-slate-400">Drag tasks between lanes to update their status.</p>
           </div>
           <button
             className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-white/10 px-4 py-2 text-sm font-medium text-white ring-1 ring-white/10 hover:bg-white/15 sm:w-auto"
