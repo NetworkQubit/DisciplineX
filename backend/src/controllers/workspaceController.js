@@ -81,6 +81,7 @@ async function loadMongoWorkspace(user) {
     tasks: tasks.map((task) => ({
       ...task,
       id: task._id,
+      status: task.status === "todo" ? "backlog" : task.status,
       completed: task.status === "done"
     })),
     calendarBlocks: calendarBlocks.map((block) => ({
@@ -214,7 +215,14 @@ export const importWorkspace = asyncHandler(async (req, res) => {
         subject: task.subject?._id ? subjectMap.get(String(task.subject._id)) : undefined,
         title: task.title,
         priority: task.priority || "medium",
-        status: task.completed || task.status === "done" ? "done" : task.status || "todo",
+        category: task.category || "others",
+        subtasks: Array.isArray(task.subtasks)
+          ? task.subtasks.map((subtask) => ({
+              title: subtask.title,
+              completed: Boolean(subtask.completed)
+            }))
+          : [],
+        status: task.completed || task.status === "done" ? "done" : task.status === "todo" ? "backlog" : task.status || "backlog",
         position: Number(task.position) || index
       }))
     );
@@ -339,8 +347,15 @@ export const createTask = asyncHandler(async (req, res) => {
     subject: req.body.subjectId || undefined,
     title: req.body.title,
     priority: req.body.priority || "medium",
+    category: req.body.category || "others",
+    subtasks: Array.isArray(req.body.subtasks)
+      ? req.body.subtasks.map((subtask) => ({
+          title: subtask.title,
+          completed: Boolean(subtask.completed)
+        }))
+      : [],
     position,
-    status: req.body.completed ? "done" : "todo"
+    status: req.body.completed ? "done" : req.body.status === "todo" ? "backlog" : req.body.status || "backlog"
   });
   return res.status(201).json(await loadMongoWorkspace(user));
 });
@@ -354,13 +369,24 @@ export const updateTask = asyncHandler(async (req, res) => {
   const updates = { ...req.body };
 
   if ("completed" in updates) {
-    updates.status = updates.completed ? "done" : "todo";
+    updates.status = updates.completed ? "done" : "backlog";
     delete updates.completed;
   }
 
   if ("subjectId" in updates) {
     updates.subject = updates.subjectId || undefined;
     delete updates.subjectId;
+  }
+
+  if ("status" in updates && updates.status === "todo") {
+    updates.status = "backlog";
+  }
+
+  if (Array.isArray(updates.subtasks)) {
+    updates.subtasks = updates.subtasks.map((subtask) => ({
+      title: subtask.title,
+      completed: Boolean(subtask.completed)
+    }));
   }
 
   await Task.findOneAndUpdate(

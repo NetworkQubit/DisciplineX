@@ -66,9 +66,9 @@ function createDefaultWorkspace() {
       { id: subjectProgramming, name: "Programming", color: "#F59E0B", goalMinutes: 150, icon: "Code2" }
     ],
     tasks: [
-      { id: createId(), subjectId: subjectMath, title: "Solve 20 differentiation problems", priority: "high", status: "todo", position: 0 },
-      { id: createId(), subjectId: subjectPhysics, title: "Review thermodynamics notes", priority: "medium", status: "todo", position: 1 },
-      { id: createId(), subjectId: subjectProgramming, title: "Build timer screen interactions", priority: "high", status: "todo", position: 2 }
+      { id: createId(), subjectId: subjectMath, title: "Solve 20 differentiation problems", priority: "high", status: "backlog", category: "learning", subtasks: [], position: 0 },
+      { id: createId(), subjectId: subjectPhysics, title: "Review thermodynamics notes", priority: "medium", status: "in_progress", category: "research", subtasks: [], position: 1 },
+      { id: createId(), subjectId: subjectProgramming, title: "Build timer screen interactions", priority: "high", status: "backlog", category: "coding", subtasks: [], position: 2 }
     ],
     calendarBlocks: [],
     sessions
@@ -138,6 +138,7 @@ function buildWorkspaceResponse(workspace) {
       .sort((a, b) => a.position - b.position)
       .map((task) => ({
         ...task,
+        status: task.status === "todo" ? "backlog" : task.status,
         completed: task.status === "done",
         subject: task.subjectId ? subjectMap.get(task.subjectId) || null : null
       })),
@@ -247,11 +248,13 @@ export async function createLocalTask(payload) {
   workspace.tasks.push({
     id: createId(),
     title: payload.title,
-    subjectId: payload.subjectId,
-    priority: payload.priority || "medium",
-    status: payload.completed ? "done" : "todo",
-    position: workspace.tasks.length
-  });
+      subjectId: payload.subjectId,
+      priority: payload.priority || "medium",
+      category: payload.category || "others",
+      subtasks: Array.isArray(payload.subtasks) ? payload.subtasks : [],
+      status: payload.completed ? "done" : payload.status === "todo" ? "backlog" : payload.status || "backlog",
+      position: workspace.tasks.length
+    });
   return writeWorkspace(workspace);
 }
 
@@ -264,11 +267,14 @@ export async function updateLocalTask(taskId, updates) {
 
     const next = { ...task, ...updates };
     if ("completed" in updates) {
-      next.status = updates.completed ? "done" : "todo";
+      next.status = updates.completed ? "done" : "backlog";
       delete next.completed;
     }
     if ("subjectId" in updates) {
       next.subjectId = updates.subjectId || undefined;
+    }
+    if ("status" in updates && updates.status === "todo") {
+      next.status = "backlog";
     }
     return next;
   });

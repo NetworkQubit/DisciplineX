@@ -52,12 +52,19 @@ export type Task = {
   title: string;
   completed: boolean;
   priority: "low" | "medium" | "high";
+  category?: "coding" | "debugging" | "research" | "writing" | "learning" | "planning" | "others";
   subject?: {
     _id?: string;
     name: string;
     color: string;
   } | null;
-  status?: "todo" | "in_progress" | "done";
+  status?: "backlog" | "in_progress" | "will_see_later" | "done";
+  subtasks?: Array<{
+    _id?: string;
+    id?: string;
+    title: string;
+    completed: boolean;
+  }>;
   position?: number;
 };
 

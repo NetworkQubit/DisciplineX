@@ -23,7 +23,7 @@ const links = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard },
   { to: "/timer", label: "Timer", icon: Timer },
   { to: "/reports", label: "Reports & Analytics", icon: BarChart3 },
-  { to: "/tasks", label: "Task Management", icon: ListTodo },
+  { to: "/tasks", label: "Task Categories", icon: ListTodo },
   { to: "/calendar", label: "Calendar", icon: CalendarDays },
   { to: "/settings", label: "Settings", icon: Settings }
 ];

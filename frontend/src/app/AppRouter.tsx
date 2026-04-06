@@ -197,7 +197,7 @@ export function AppRouter() {
               <TasksPage
                 workspace={workspace}
                 onAddTask={addTask}
-                onToggleTask={(taskId, completed) => updateTask(taskId, { completed })}
+                onUpdateTask={updateTask}
                 onReorderTasks={reorderTaskList}
               />
             }
