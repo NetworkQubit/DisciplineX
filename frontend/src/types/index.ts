@@ -93,7 +93,7 @@ export type CalendarBlock = {
   startAt: string;
   endAt: string;
   recurrence?: {
-    frequency: "daily" | "weekly";
+    frequency: "daily" | "weekly" | "monthly" | "yearly";
     interval: number;
     count: number;
     seriesId: string;

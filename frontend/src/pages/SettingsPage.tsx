@@ -152,12 +152,16 @@ export function SettingsPage({
               placeholder="New subject name"
               className="rounded-2xl border border-slate-200 bg-white px-4 py-3 dark:border-white/10 dark:bg-slate-950/50"
             />
-            <input
-              type="color"
-              value={subjectColor}
-              onChange={(event) => setSubjectColor(event.target.value)}
-              className="h-12 w-full rounded-2xl border border-slate-200 bg-white p-2 dark:border-white/10 dark:bg-slate-950/50"
-            />
+            <div className="inline-flex w-fit items-center gap-3 rounded-2xl border border-slate-200 bg-white px-3 py-2 dark:border-white/10 dark:bg-slate-950/50">
+              <span className="text-xs font-medium uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">Color</span>
+              <input
+                type="color"
+                value={subjectColor}
+                onChange={(event) => setSubjectColor(event.target.value)}
+                className="h-8 w-10 cursor-pointer rounded-lg border border-slate-200 bg-white p-1 dark:border-white/10 dark:bg-slate-900"
+              />
+              <span className="text-xs font-mono text-slate-500 dark:text-slate-400">{subjectColor}</span>
+            </div>
             <button className="rounded-2xl bg-slate-950 px-4 py-3 text-white" onClick={() => void handleAddSubject()}>
               Add Subject
             </button>

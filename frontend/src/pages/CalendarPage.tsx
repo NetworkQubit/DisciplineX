@@ -74,7 +74,13 @@ function recurrenceLabel(block: CalendarBlock) {
     return block.source === "auto" ? "Auto-scheduled" : block.type;
   }
 
-  const unit = block.recurrence.frequency === "daily" ? "day" : "week";
+  const unitMap: Record<NonNullable<CalendarBlock["recurrence"]>["frequency"], string> = {
+    daily: "day",
+    weekly: "week",
+    monthly: "month",
+    yearly: "year"
+  };
+  const unit = unitMap[block.recurrence.frequency];
   const interval = block.recurrence.interval > 1 ? `${block.recurrence.interval} ${unit}s` : `every ${unit}`;
   return `Repeats ${interval}`;
 }
@@ -170,7 +176,8 @@ export function CalendarPage({
   const [date, setDate] = useState(toInputDate(new Date()));
   const [startTime, setStartTime] = useState("09:00");
   const [endTime, setEndTime] = useState("10:30");
-  const [repeatFrequency, setRepeatFrequency] = useState<"none" | "daily" | "weekly">("none");
+  const [repeatFrequency, setRepeatFrequency] = useState<"none" | "daily" | "weekly" | "monthly" | "yearly">("none");
+  const [repeatInterval, setRepeatInterval] = useState(1);
   const [repeatCount, setRepeatCount] = useState(6);
 
   const blocksByDate = useMemo(() => groupBlocksByDate(workspace.calendarBlocks), [workspace.calendarBlocks]);
@@ -206,7 +213,7 @@ export function CalendarPage({
           : {
               frequency: repeatFrequency,
               count: repeatCount,
-              interval: 1
+              interval: repeatInterval
             }
     });
     setTitle("");
@@ -232,7 +239,7 @@ export function CalendarPage({
             : {
                 frequency: repeatFrequency,
                 count: repeatCount,
-                interval: 1
+                interval: repeatInterval
               }
       });
       setTitle("");
@@ -344,16 +351,30 @@ export function CalendarPage({
               <input type="time" value={startTime} onChange={(event) => setStartTime(event.target.value)} className="rounded-2xl border border-slate-200 bg-white px-4 py-3 dark:border-white/10 dark:bg-slate-950/50" />
               <input type="time" value={endTime} onChange={(event) => setEndTime(event.target.value)} className="rounded-2xl border border-slate-200 bg-white px-4 py-3 dark:border-white/10 dark:bg-slate-950/50" />
             </div>
-            <div className="grid gap-3 sm:grid-cols-[1fr_120px]">
+            <div className="grid gap-3 sm:grid-cols-[1fr_100px_110px]">
               <select
                 value={repeatFrequency}
-                onChange={(event) => setRepeatFrequency(event.target.value as "none" | "daily" | "weekly")}
+                onChange={(event) =>
+                  setRepeatFrequency(event.target.value as "none" | "daily" | "weekly" | "monthly" | "yearly")
+                }
                 className="rounded-2xl border border-slate-200 bg-white px-4 py-3 dark:border-white/10 dark:bg-slate-950/50"
               >
                 <option value="none">Does not repeat</option>
                 <option value="daily">Repeat daily</option>
                 <option value="weekly">Repeat weekly</option>
+                <option value="monthly">Repeat monthly</option>
+                <option value="yearly">Repeat yearly</option>
               </select>
+              <input
+                type="number"
+                min={1}
+                max={12}
+                value={repeatInterval}
+                disabled={repeatFrequency === "none"}
+                onChange={(event) => setRepeatInterval(Math.max(1, Number(event.target.value) || 1))}
+                className="rounded-2xl border border-slate-200 bg-white px-4 py-3 disabled:opacity-50 dark:border-white/10 dark:bg-slate-950/50"
+                title="Repeat every N units"
+              />
               <input
                 type="number"
                 min={2}

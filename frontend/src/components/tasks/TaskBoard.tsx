@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   closestCenter,
   DndContext,
@@ -64,6 +64,9 @@ function SortableTaskCard({
     transform: CSS.Transform.toString(transform),
     transition
   };
+  const totalSubtasks = task.subtasks?.length || 0;
+  const completedSubtasks = task.subtasks?.filter((subtask) => subtask.completed).length || 0;
+  const subtaskProgress = totalSubtasks ? Math.round((completedSubtasks / totalSubtasks) * 100) : 0;
 
   return (
     <article
@@ -94,6 +97,21 @@ function SortableTaskCard({
           <p className="mt-1 truncate text-sm text-slate-500 dark:text-slate-400">
             {task.subject?.name || "No subject"}
           </p>
+
+          {totalSubtasks > 0 ? (
+            <div className="mt-3">
+              <div className="mb-1 flex items-center justify-between text-[11px] text-slate-400">
+                <span>Subtasks</span>
+                <span>{completedSubtasks}/{totalSubtasks}</span>
+              </div>
+              <div className="h-1.5 overflow-hidden rounded-full bg-white/10">
+                <div
+                  className="h-full rounded-full bg-teal-400 transition-all duration-500 ease-out"
+                  style={{ width: `${subtaskProgress}%` }}
+                />
+              </div>
+            </div>
+          ) : null}
 
           {task.subtasks?.length ? (
             <div className="mt-4 space-y-2 rounded-2xl bg-white/5 p-3">
@@ -160,21 +178,6 @@ function laneToStatus(laneId: LaneId): Task["status"] {
   if (laneId === "in_progress") return "in_progress";
   if (laneId === "will_see_later") return "will_see_later";
   return "done";
-}
-
-function getSubjectFromTaskOrSubjects(task: Task, subjects: Subject[]): Subject | null {
-  const fromTaskId = task.subject?._id;
-  if (fromTaskId) {
-    return subjects.find((s) => s.id === fromTaskId) ?? null;
-  }
-
-  const byName = task.subject?.name ? subjects.find((s) => s.name === task.subject?.name) : null;
-  return byName ?? null;
-}
-
-function getTaskSubjectObject(subject: Subject | null): Task["subject"] | null {
-  if (!subject) return null;
-  return { _id: subject.id, name: subject.name, color: subject.color };
 }
 
 function LaneColumn({
@@ -260,12 +263,6 @@ export function TaskBoard({ tasks, subjects, onAddTask, onUpdateTask, onReorderT
     }
 
     const nextStatus = laneToStatus(targetLane);
-
-    const currentSubject = getSubjectFromTaskOrSubjects(activeTask, subjects);
-    const nextSubjectId =
-      targetLane === "personal"
-        ? null
-        : currentSubject?.id ?? null;
 
     const updatedActiveTask: Task = {
       ...activeTask,
@@ -353,7 +350,7 @@ export function TaskBoard({ tasks, subjects, onAddTask, onUpdateTask, onReorderT
         </div>
 
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-          <div className="grid gap-4 lg:grid-cols-5">
+          <div className="grid gap-4 lg:grid-cols-4">
             {laneOrder.map((laneId) => {
               const laneTasks = items.filter((task) => getLaneIdForTask(task) === laneId);
               return <LaneColumn key={laneId} laneId={laneId} laneTasks={laneTasks} onUpdateTask={onUpdateTask} />;

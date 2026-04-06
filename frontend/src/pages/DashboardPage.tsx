@@ -10,6 +10,8 @@ type DashboardPageProps = {
 };
 
 export function DashboardPage({ workspace }: DashboardPageProps) {
+  const maxSubjectMinutes = Math.max(...workspace.subjects.map((subject) => subject.studiedMinutes || 0), 1);
+
   const desktopMetrics: MetricCard[] = [
     {
       label: "Today",
@@ -58,14 +60,25 @@ export function DashboardPage({ workspace }: DashboardPageProps) {
           <SubjectPieChart data={workspace.analytics.subjectBreakdown} />
           <div className="space-y-3">
             {workspace.subjects.map((subject) => (
-              <div key={subject.id} className="flex items-center justify-between gap-3 text-sm">
-                <div className="flex min-w-0 items-center gap-3">
-                  <span className="h-3 w-3 rounded-full" style={{ backgroundColor: subject.color }} />
-                  <span className="truncate">{subject.name}</span>
+              <div key={subject.id} className="text-sm">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex min-w-0 items-center gap-3">
+                    <span className="h-3 w-3 rounded-full" style={{ backgroundColor: subject.color }} />
+                    <span className="truncate">{subject.name}</span>
+                  </div>
+                  <span className="text-slate-500 dark:text-slate-400">
+                    {subject.studiedMinutes || 0} min
+                  </span>
                 </div>
-                <span className="text-slate-500 dark:text-slate-400">
-                  {subject.studiedMinutes || 0} min
-                </span>
+                <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-200/70 dark:bg-white/10">
+                  <div
+                    className="h-full rounded-full transition-all duration-700 ease-out"
+                    style={{
+                      width: `${Math.max(4, Math.round(((subject.studiedMinutes || 0) / maxSubjectMinutes) * 100))}%`,
+                      backgroundColor: subject.color
+                    }}
+                  />
+                </div>
               </div>
             ))}
           </div>

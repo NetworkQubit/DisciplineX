@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const recurrenceSchema = new mongoose.Schema(
   {
-    frequency: { type: String, enum: ["daily", "weekly"], required: true },
+    frequency: { type: String, enum: ["daily", "weekly", "monthly", "yearly"], required: true },
     interval: { type: Number, default: 1 },
     count: { type: Number, default: 1 },
     seriesId: { type: String, required: true }

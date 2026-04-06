@@ -335,7 +335,7 @@ export function buildRecurringCalendarBlocks(payload) {
   const startAt = new Date(payload.startAt);
   const endAt = new Date(payload.endAt);
   const rawRecurrence = payload.recurrence || {};
-  const frequency = rawRecurrence.frequency === "daily" || rawRecurrence.frequency === "weekly"
+  const frequency = ["daily", "weekly", "monthly", "yearly"].includes(rawRecurrence.frequency)
     ? rawRecurrence.frequency
     : "none";
   const count = Math.max(1, Math.min(Number(rawRecurrence.count) || 1, 30));
@@ -359,6 +359,16 @@ export function buildRecurringCalendarBlocks(payload) {
     if (frequency === "weekly") {
       nextStartAt.setDate(nextStartAt.getDate() + index * interval * 7);
       nextEndAt.setDate(nextEndAt.getDate() + index * interval * 7);
+    }
+
+    if (frequency === "monthly") {
+      nextStartAt.setMonth(nextStartAt.getMonth() + index * interval);
+      nextEndAt.setMonth(nextEndAt.getMonth() + index * interval);
+    }
+
+    if (frequency === "yearly") {
+      nextStartAt.setFullYear(nextStartAt.getFullYear() + index * interval);
+      nextEndAt.setFullYear(nextEndAt.getFullYear() + index * interval);
     }
 
     blocks.push({
