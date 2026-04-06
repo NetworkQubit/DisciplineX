@@ -10,12 +10,46 @@ import { errorHandler, notFound } from "./middleware/errorMiddleware.js";
 dotenv.config();
 dotenv.config({ path: "backend/.env" });
 
+function buildAllowedOrigins() {
+  const configuredOrigins = (process.env.CLIENT_URL || "http://localhost:5173")
+    .split(",")
+    .map((value) => value.trim())
+    .filter(Boolean);
+
+  return Array.from(new Set([...configuredOrigins, "http://localhost:5173", "http://127.0.0.1:5173"]));
+}
+
+function isAllowedOrigin(origin, allowedOrigins) {
+  if (!origin) {
+    return true;
+  }
+
+  if (allowedOrigins.includes(origin)) {
+    return true;
+  }
+
+  try {
+    const { hostname } = new URL(origin);
+    return hostname.endsWith(".netlify.app");
+  } catch {
+    return false;
+  }
+}
+
 export function createApp() {
   const app = express();
+  const allowedOrigins = buildAllowedOrigins();
 
   app.use(
     cors({
-      origin: process.env.CLIENT_URL || "http://localhost:5173",
+      origin(origin, callback) {
+        if (isAllowedOrigin(origin, allowedOrigins)) {
+          callback(null, true);
+          return;
+        }
+
+        callback(new Error(`CORS blocked for origin: ${origin}`));
+      },
       credentials: true
     })
   );
