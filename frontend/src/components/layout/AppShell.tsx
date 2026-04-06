@@ -121,7 +121,7 @@ export function AppShell({ children, profile, saving = false, onLogout }: AppShe
                     "flex items-center rounded-2xl px-4 py-3 text-sm transition",
                     isCollapsed ? "justify-center" : "gap-3",
                     isActive
-                      ? "bg-slate-950 text-white shadow-[0_14px_34px_rgba(15,23,42,0.24)] dark:bg-white dark:text-slate-950"
+                      ? "bg-slate-950 text-white shadow-[0_14px_34px_rgba(15,23,42,0.24)] dark:bg-teal-400/16 dark:text-teal-100 dark:ring-1 dark:ring-teal-300/18"
                       : "text-slate-500 hover:bg-slate-100 hover:text-slate-950 dark:text-slate-300 dark:hover:bg-white/8 dark:hover:text-white"
                   )
                 }
@@ -208,7 +208,7 @@ export function AppShell({ children, profile, saving = false, onLogout }: AppShe
                 cn(
                   "flex flex-col items-center justify-center gap-1 rounded-2xl px-3 py-3 text-xs transition",
                   isActive
-                    ? "bg-slate-950 text-white dark:bg-white dark:text-slate-950"
+                    ? "bg-slate-950 text-white dark:bg-teal-400/16 dark:text-teal-100 dark:ring-1 dark:ring-teal-300/18"
                     : "text-slate-500 dark:text-slate-400"
                 )
               }

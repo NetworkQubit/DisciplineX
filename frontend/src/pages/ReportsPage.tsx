@@ -82,7 +82,7 @@ export function ReportsPage({ workspace }: ReportsPageProps) {
 
           <div className="mt-5 grid gap-3">
             <div className="rounded-3xl border border-slate-200 bg-slate-50 p-4 dark:border-white/10 dark:bg-slate-950/50">
-              <p className="text-sm text-slate-500 dark:text-slate-400">Best Time Of Day</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400">Peak Focus Window</p>
               <p className="mt-2 text-xl font-semibold">{workspace.analytics.focusDna.bestTimeOfDay}</p>
             </div>
             <div className="rounded-3xl border border-slate-200 bg-slate-50 p-4 dark:border-white/10 dark:bg-slate-950/50">

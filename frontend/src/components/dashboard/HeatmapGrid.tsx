@@ -23,6 +23,7 @@ export function HeatmapGrid({ data }: HeatmapGridProps) {
       weeks.push(data.slice(index, index + 7));
     }
 
+    let previousMonthMarkerIndex = -8;
     const markers = weeks.map((week, index) => {
       const firstDay = week[0];
       if (!firstDay) {
@@ -34,11 +35,17 @@ export function HeatmapGrid({ data }: HeatmapGridProps) {
       const previousWeek = weeks[index - 1]?.[0];
 
       if (!previousWeek) {
+        previousMonthMarkerIndex = index;
         return month;
       }
 
       const previousMonth = new Date(previousWeek.date).toLocaleDateString([], { month: "short" });
-      return previousMonth === month ? "" : month;
+      if (previousMonth === month || index - previousMonthMarkerIndex < 4) {
+        return "";
+      }
+
+      previousMonthMarkerIndex = index;
+      return month;
     });
 
     return { columns: weeks, monthMarkers: markers };
@@ -47,9 +54,9 @@ export function HeatmapGrid({ data }: HeatmapGridProps) {
   return (
     <div className="overflow-x-auto">
       <div className="min-w-[760px]">
-        <div className="mb-3 grid grid-flow-col gap-2 pl-10 text-[11px] uppercase tracking-[0.18em] text-slate-400">
+        <div className="mb-3 grid grid-flow-col gap-2 pl-10 text-[10px] font-medium uppercase tracking-[0.08em] text-slate-400">
           {monthMarkers.map((label, index) => (
-            <span key={`${label}-${index}`} className="w-4 text-left">
+            <span key={`${label}-${index}`} className="w-4 whitespace-nowrap text-left">
               {label}
             </span>
           ))}

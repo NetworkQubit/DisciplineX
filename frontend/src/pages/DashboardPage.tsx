@@ -78,7 +78,7 @@ export function DashboardPage({ workspace }: DashboardPageProps) {
             <h3 className="text-xl font-semibold">Advanced Analytics</h3>
             <div className="mt-5 grid gap-3">
               <div className="rounded-3xl border border-white/30 bg-white/60 p-4 dark:border-white/10 dark:bg-slate-950/40">
-                <p className="text-sm text-slate-500 dark:text-slate-400">Best Study Time</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400">Peak Focus Window</p>
                 <p className="mt-2 text-2xl font-semibold">{workspace.analytics.overview.bestStudyTimeLabel}</p>
               </div>
               <div className="rounded-3xl border border-white/30 bg-white/60 p-4 dark:border-white/10 dark:bg-slate-950/40">
@@ -115,7 +115,7 @@ export function DashboardPage({ workspace }: DashboardPageProps) {
 
                 <div className="mt-6 grid gap-3 md:grid-cols-2">
                   <div className="rounded-3xl border border-white/50 bg-gradient-to-br from-amber-50 to-white p-4 dark:border-white/10 dark:bg-gradient-to-br dark:from-white/5 dark:to-transparent">
-                    <p className="text-sm text-slate-500 dark:text-slate-400">Best Study Window</p>
+                    <p className="text-sm text-slate-500 dark:text-slate-400">Peak Focus Window</p>
                     <p className="mt-2 text-xl font-semibold">{workspace.analytics.overview.bestStudyTimeLabel}</p>
                     <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
                       Your focus tends to peak most reliably here.
