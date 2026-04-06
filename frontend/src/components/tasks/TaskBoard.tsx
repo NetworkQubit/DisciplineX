@@ -28,6 +28,12 @@ const categoryLabels = {
   others: "Others"
 } as const;
 
+const priorityBadgeClasses: Record<Task["priority"], string> = {
+  low: "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-200",
+  medium: "bg-amber-50 text-amber-700 dark:bg-amber-500/20 dark:text-amber-200",
+  high: "bg-rose-50 text-rose-700 dark:bg-rose-500/20 dark:text-rose-200"
+};
+
 type TaskBoardProps = {
   tasks: Task[];
   subjects: Subject[];
@@ -82,9 +88,12 @@ function SortableTaskCard({
             <span className="rounded-full bg-slate-100 px-2 py-1 text-[11px] uppercase tracking-[0.12em] text-slate-500 dark:bg-slate-950 dark:text-slate-400">
               {categoryLabels[task.category || "others"]}
             </span>
+            <span className={cn("rounded-full px-2 py-1 text-[11px] font-semibold uppercase tracking-[0.12em]", priorityBadgeClasses[task.priority])}>
+              {task.priority}
+            </span>
           </div>
           <p className="mt-1 truncate text-sm text-slate-500 dark:text-slate-400">
-            {task.subject?.name || "General"} · {task.priority} priority
+            {task.subject?.name || "No subject"}
           </p>
 
           <div className="mt-3 flex flex-wrap gap-2">
@@ -231,7 +240,7 @@ export function TaskBoard({ tasks, subjects, activeStatus, onAddTask, onUpdateTa
           onChange={(event) => setSubjectId(event.target.value)}
           className="rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none dark:border-white/10 dark:bg-slate-950/50"
         >
-          <option value="">General</option>
+          <option value="">Select subject</option>
           {subjects.map((subject) => (
             <option key={subject.id} value={subject.id}>
               {subject.name}

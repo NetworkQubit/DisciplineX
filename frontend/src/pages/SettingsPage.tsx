@@ -5,7 +5,7 @@ import type { WorkspaceData } from "../types";
 type SettingsPageProps = {
   workspace: WorkspaceData;
   onUpdateProfile: (payload: Record<string, unknown>) => Promise<void>;
-  onAddSubject: (payload: { name: string; color: string; goalMinutes: number }) => Promise<void>;
+  onAddSubject: (payload: { name: string; color: string }) => Promise<void>;
   onDeleteSubject: (subjectId: string) => Promise<void>;
   onResetWorkspace: () => Promise<void>;
 };
@@ -19,18 +19,15 @@ export function SettingsPage({
 }: SettingsPageProps) {
   const [username, setUsername] = useState(workspace.profile.username);
   const [bio, setBio] = useState(workspace.profile.bio);
-  const [studyGoalMinutes, setStudyGoalMinutes] = useState(workspace.profile.studyGoalMinutes);
   const [theme, setTheme] = useState<"light" | "dark" | "system">(workspace.profile.preferences.theme);
   const [pomodoroFocusMinutes, setPomodoroFocusMinutes] = useState(workspace.profile.preferences.pomodoroFocusMinutes);
   const [pomodoroBreakMinutes, setPomodoroBreakMinutes] = useState(workspace.profile.preferences.pomodoroBreakMinutes);
   const [subjectName, setSubjectName] = useState("");
   const [subjectColor, setSubjectColor] = useState("#14B8A6");
-  const [subjectGoal, setSubjectGoal] = useState(90);
 
   useEffect(() => {
     setUsername(workspace.profile.username);
     setBio(workspace.profile.bio);
-    setStudyGoalMinutes(workspace.profile.studyGoalMinutes);
     setTheme(workspace.profile.preferences.theme);
     setPomodoroFocusMinutes(workspace.profile.preferences.pomodoroFocusMinutes);
     setPomodoroBreakMinutes(workspace.profile.preferences.pomodoroBreakMinutes);
@@ -40,7 +37,6 @@ export function SettingsPage({
     await onUpdateProfile({
       username,
       bio,
-      studyGoalMinutes,
       preferences: {
         ...workspace.profile.preferences,
         theme,
@@ -57,12 +53,10 @@ export function SettingsPage({
 
     await onAddSubject({
       name: subjectName.trim(),
-      color: subjectColor,
-      goalMinutes: subjectGoal
+      color: subjectColor
     });
 
     setSubjectName("");
-    setSubjectGoal(90);
   }
 
   async function handleReset() {
@@ -78,7 +72,7 @@ export function SettingsPage({
   return (
     <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
       <section className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-slate-900">
-        <h3 className="text-xl font-semibold">Workspace settings</h3>
+        <h3 className="text-xl font-semibold">Profile settings</h3>
         <div className="mt-6 grid gap-4">
           <input
             value={username}
@@ -91,13 +85,6 @@ export function SettingsPage({
             onChange={(event) => setBio(event.target.value)}
             placeholder="Bio"
             rows={4}
-            className="rounded-2xl border border-slate-200 bg-white px-4 py-3 dark:border-white/10 dark:bg-slate-950/50"
-          />
-          <input
-            type="number"
-            value={studyGoalMinutes}
-            onChange={(event) => setStudyGoalMinutes(Number(event.target.value))}
-            placeholder="Daily goal minutes"
             className="rounded-2xl border border-slate-200 bg-white px-4 py-3 dark:border-white/10 dark:bg-slate-950/50"
           />
           <select
@@ -165,21 +152,12 @@ export function SettingsPage({
               placeholder="New subject name"
               className="rounded-2xl border border-slate-200 bg-white px-4 py-3 dark:border-white/10 dark:bg-slate-950/50"
             />
-            <div className="grid gap-3 sm:grid-cols-2">
-              <input
-                type="color"
-                value={subjectColor}
-                onChange={(event) => setSubjectColor(event.target.value)}
-                className="h-12 w-full rounded-2xl border border-slate-200 bg-white p-2 dark:border-white/10 dark:bg-slate-950/50"
-              />
-              <input
-                type="number"
-                value={subjectGoal}
-                onChange={(event) => setSubjectGoal(Number(event.target.value))}
-                placeholder="Goal minutes"
-                className="rounded-2xl border border-slate-200 bg-white px-4 py-3 dark:border-white/10 dark:bg-slate-950/50"
-              />
-            </div>
+            <input
+              type="color"
+              value={subjectColor}
+              onChange={(event) => setSubjectColor(event.target.value)}
+              className="h-12 w-full rounded-2xl border border-slate-200 bg-white p-2 dark:border-white/10 dark:bg-slate-950/50"
+            />
             <button className="rounded-2xl bg-slate-950 px-4 py-3 text-white" onClick={() => void handleAddSubject()}>
               Add Subject
             </button>
@@ -192,7 +170,6 @@ export function SettingsPage({
                   <span className="h-3 w-3 rounded-full" style={{ backgroundColor: subject.color }} />
                   <div>
                     <p className="font-medium">{subject.name}</p>
-                    <p className="text-sm text-slate-500 dark:text-slate-400">{subject.goalMinutes} min goal</p>
                   </div>
                 </div>
                 <button className="rounded-2xl bg-white px-3 py-2 text-sm dark:bg-slate-950" onClick={() => void onDeleteSubject(subject.id)}>

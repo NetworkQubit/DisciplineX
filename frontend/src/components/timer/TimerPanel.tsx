@@ -200,7 +200,7 @@ export function TimerPanel({
                   <span className="h-3 w-3 rounded-full" style={{ backgroundColor: subject.color }} />
                   <div>
                     <p className="font-medium">{subject.name}</p>
-                    <p className="text-sm text-slate-500 dark:text-slate-400">{subject.studiedMinutes || 0}/{subject.goalMinutes} min</p>
+                    <p className="text-sm text-slate-500 dark:text-slate-400">{subject.studiedMinutes || 0} min tracked</p>
                   </div>
                 </div>
                 <button

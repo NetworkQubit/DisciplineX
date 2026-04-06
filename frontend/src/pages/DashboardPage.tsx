@@ -64,7 +64,7 @@ export function DashboardPage({ workspace }: DashboardPageProps) {
                   <span className="truncate">{subject.name}</span>
                 </div>
                 <span className="text-slate-500 dark:text-slate-400">
-                  {subject.studiedMinutes || 0}/{subject.goalMinutes} min
+                  {subject.studiedMinutes || 0} min
                 </span>
               </div>
             ))}

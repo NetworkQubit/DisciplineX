@@ -1,6 +1,5 @@
 import { SubjectPieChart } from "../components/charts/SubjectPieChart";
 import { StudyTrendChart } from "../components/charts/StudyTrendChart";
-import { HeatmapGrid } from "../components/dashboard/HeatmapGrid";
 import { formatMinutes } from "../lib/utils";
 import type { WorkspaceData } from "../types";
 
@@ -14,22 +13,8 @@ export function ReportsPage({ workspace }: ReportsPageProps) {
     : "No favorite subject mapped yet.";
 
   return (
-    <div className="grid gap-6 xl:grid-cols-[1.18fr_0.82fr]">
+    <div className="grid gap-6 xl:grid-cols-2">
       <section className="space-y-6">
-        <article className="rounded-[32px] border border-white/30 bg-white/80 p-5 shadow-glow backdrop-blur sm:p-6 dark:border-white/10 dark:bg-slate-900/70">
-          <div className="mb-5 flex items-center justify-between gap-3">
-            <div>
-              <p className="text-xs uppercase tracking-[0.24em] text-slate-400">Consistency Map</p>
-              <h3 className="mt-2 text-2xl font-semibold">Advanced Analytics</h3>
-            </div>
-            <div className="rounded-2xl bg-emerald-50 px-4 py-3 text-emerald-900 dark:bg-emerald-500/10 dark:text-emerald-200">
-              <p className="text-xs uppercase tracking-[0.2em] opacity-70">Score</p>
-              <p className="mt-1 text-xl font-semibold">{workspace.analytics.overview.focusScore}</p>
-            </div>
-          </div>
-          <HeatmapGrid data={workspace.analytics.heatmap} />
-        </article>
-
         <article className="rounded-[32px] border border-white/30 bg-white/80 p-5 shadow-glow backdrop-blur sm:p-6 dark:border-white/10 dark:bg-slate-900/70">
           <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
             <div>
