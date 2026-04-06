@@ -367,12 +367,6 @@ export function CalendarPage({
             <button className="rounded-2xl bg-slate-950 px-4 py-3 text-white" onClick={() => void handleAddBlock()}>
               Save Event
             </button>
-            <button
-              className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-700 dark:border-white/10 dark:bg-slate-950/50 dark:text-slate-100"
-              onClick={() => void handleSyncGoogleCalendar()}
-            >
-              Save & Sync Google Calendar
-            </button>
           </div>
         </section>
       </aside>
