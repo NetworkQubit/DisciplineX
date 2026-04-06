@@ -48,18 +48,32 @@ export function HeatmapGrid({ data }: HeatmapGridProps) {
       return month;
     });
 
-    return { columns: weeks, monthMarkers: markers };
+    return {
+      columns: weeks,
+      monthMarkers: markers
+        .map((label, index) => ({ label, index }))
+        .filter((marker) => Boolean(marker.label))
+    };
   }, [data]);
+
+  const gridWidthRem = columns.length * 1 + Math.max(0, columns.length - 1) * 0.5;
 
   return (
     <div className="overflow-x-auto">
       <div className="min-w-[760px]">
-        <div className="mb-3 grid grid-flow-col gap-2 pl-10 text-[10px] font-medium uppercase tracking-[0.08em] text-slate-400">
-          {monthMarkers.map((label, index) => (
-            <span key={`${label}-${index}`} className="w-4 whitespace-nowrap text-left">
-              {label}
-            </span>
-          ))}
+        <div className="mb-3 flex gap-3">
+          <div className="w-7 shrink-0" />
+          <div className="relative h-4" style={{ width: `${gridWidthRem}rem` }}>
+            {monthMarkers.map((marker) => (
+              <span
+                key={`${marker.label}-${marker.index}`}
+                className="absolute top-0 text-[10px] font-medium uppercase tracking-[0.08em] text-slate-400"
+                style={{ left: `${marker.index * 1.5}rem` }}
+              >
+                {marker.label}
+              </span>
+            ))}
+          </div>
         </div>
 
         <div className="flex gap-3">

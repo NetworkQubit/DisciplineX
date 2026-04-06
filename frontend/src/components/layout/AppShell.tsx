@@ -118,11 +118,11 @@ export function AppShell({ children, profile, saving = false, onLogout }: AppShe
                 to={to}
                 className={({ isActive }) =>
                   cn(
-                    "flex items-center rounded-2xl px-4 py-3 text-sm transition",
+                    "flex items-center rounded-2xl border border-transparent bg-transparent px-4 py-3 text-sm outline-none transition focus-visible:ring-1 focus-visible:ring-teal-300/30",
                     isCollapsed ? "justify-center" : "gap-3",
                     isActive
-                      ? "bg-slate-950 text-white shadow-[0_14px_34px_rgba(15,23,42,0.24)] dark:bg-teal-400/16 dark:text-teal-100 dark:ring-1 dark:ring-teal-300/18"
-                      : "text-slate-500 hover:bg-slate-100 hover:text-slate-950 dark:text-slate-300 dark:hover:bg-white/8 dark:hover:text-white"
+                      ? "bg-slate-950 text-white shadow-[0_14px_34px_rgba(15,23,42,0.24)] dark:border-teal-400/30 dark:bg-slate-800/90 dark:text-teal-100 dark:shadow-[0_16px_36px_rgba(8,145,178,0.12)]"
+                      : "text-slate-500 hover:bg-slate-100 hover:text-slate-950 dark:text-slate-300 dark:hover:border-white/10 dark:hover:bg-slate-800/70 dark:hover:text-white"
                   )
                 }
                 title={isCollapsed ? label : undefined}
@@ -206,10 +206,10 @@ export function AppShell({ children, profile, saving = false, onLogout }: AppShe
               to={to}
               className={({ isActive }) =>
                 cn(
-                  "flex flex-col items-center justify-center gap-1 rounded-2xl px-3 py-3 text-xs transition",
+                  "flex flex-col items-center justify-center gap-1 rounded-2xl border border-transparent bg-transparent px-3 py-3 text-xs outline-none transition focus-visible:ring-1 focus-visible:ring-teal-300/30",
                   isActive
-                    ? "bg-slate-950 text-white dark:bg-teal-400/16 dark:text-teal-100 dark:ring-1 dark:ring-teal-300/18"
-                    : "text-slate-500 dark:text-slate-400"
+                    ? "bg-slate-950 text-white dark:border-teal-400/30 dark:bg-slate-800/90 dark:text-teal-100"
+                    : "text-slate-500 dark:text-slate-400 dark:hover:border-white/10 dark:hover:bg-slate-800/70 dark:hover:text-white"
                 )
               }
             >
