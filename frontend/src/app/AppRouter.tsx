@@ -14,7 +14,9 @@ import { useWorkspaceData } from "../hooks/useWorkspaceData";
 import { AuthPage } from "../pages/AuthPage";
 import { CalendarPage } from "../pages/CalendarPage";
 import { DashboardPage } from "../pages/DashboardPage";
+import { ReportsPage } from "../pages/ReportsPage";
 import { SettingsPage } from "../pages/SettingsPage";
+import { TasksPage } from "../pages/TasksPage";
 import { TimerPage } from "../pages/TimerPage";
 import type { AuthUser } from "../types";
 
@@ -146,12 +148,7 @@ export function AppRouter() {
           <Route
             path="/"
             element={
-              <DashboardPage
-                workspace={workspace}
-                onAddTask={addTask}
-                onToggleTask={(taskId, completed) => updateTask(taskId, { completed })}
-                onReorderTasks={reorderTaskList}
-              />
+              <DashboardPage workspace={workspace} />
             }
           />
           <Route
@@ -162,6 +159,15 @@ export function AppRouter() {
                 onStartSession={startFocusSession}
                 onPauseSession={togglePauseSession}
                 onStopSession={stopFocusSession}
+              />
+            }
+          />
+          <Route path="/reports" element={<ReportsPage workspace={workspace} />} />
+          <Route
+            path="/tasks"
+            element={
+              <TasksPage
+                workspace={workspace}
                 onAddTask={addTask}
                 onToggleTask={(taskId, completed) => updateTask(taskId, { completed })}
                 onReorderTasks={reorderTaskList}

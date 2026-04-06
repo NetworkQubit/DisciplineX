@@ -1,9 +1,11 @@
 import {
+  BarChart3,
   CalendarDays,
   ChevronLeft,
   ChevronRight,
   Flame,
   LayoutDashboard,
+  ListTodo,
   LogOut,
   MoonStar,
   Settings,
@@ -18,6 +20,8 @@ import type { Profile } from "../../types";
 const links = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard },
   { to: "/timer", label: "Timer", icon: Timer },
+  { to: "/reports", label: "Reports & Analytics", icon: BarChart3 },
+  { to: "/tasks", label: "Task Management", icon: ListTodo },
   { to: "/calendar", label: "Calendar", icon: CalendarDays },
   { to: "/settings", label: "Settings", icon: Settings }
 ];
@@ -195,7 +199,7 @@ export function AppShell({ children, profile, saving = false, onLogout }: AppShe
       </div>
 
       <nav className="fixed inset-x-3 bottom-3 z-20 rounded-[28px] border border-white/50 bg-white/88 p-2 text-slate-900 shadow-[0_20px_50px_rgba(148,163,184,0.24)] backdrop-blur-xl dark:border-white/10 dark:bg-slate-950/90 dark:text-white dark:shadow-[0_18px_60px_rgba(2,6,23,0.5)] lg:hidden">
-        <div className="grid grid-cols-4 gap-2">
+        <div className="grid grid-cols-6 gap-2">
           {links.map(({ to, label, icon: Icon }) => (
             <NavLink
               key={to}

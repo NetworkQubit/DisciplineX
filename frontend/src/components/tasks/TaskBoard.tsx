@@ -114,7 +114,7 @@ export function TaskBoard({ tasks, subjects, onAddTask, onToggleTask, onReorderT
     <section className="rounded-[32px] border border-white/30 bg-white/80 p-5 shadow-glow backdrop-blur sm:p-6 dark:border-white/10 dark:bg-slate-900/70">
       <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
-          <h3 className="text-xl font-semibold">Today&apos;s tasks</h3>
+          <h3 className="text-xl font-semibold">Today&apos;s Tasks</h3>
           <p className="text-sm text-slate-500 dark:text-slate-400">
             Drag to reprioritize and persist your daily plan.
           </p>
