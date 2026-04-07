@@ -15,6 +15,8 @@ import type { AuthUser } from "../types";
 const AuthPage = lazy(() => import("../pages/AuthPage").then((module) => ({ default: module.AuthPage })));
 const CalendarPage = lazy(() => import("../pages/CalendarPage").then((module) => ({ default: module.CalendarPage })));
 const DashboardPage = lazy(() => import("../pages/DashboardPage").then((module) => ({ default: module.DashboardPage })));
+const HeatmapPage = lazy(() => import("../pages/HeatmapPage").then((module) => ({ default: module.HeatmapPage })));
+const LeaderboardPage = lazy(() => import("../pages/LeaderboardPage").then((module) => ({ default: module.LeaderboardPage })));
 const ReportsPage = lazy(() => import("../pages/ReportsPage").then((module) => ({ default: module.ReportsPage })));
 const SettingsPage = lazy(() => import("../pages/SettingsPage").then((module) => ({ default: module.SettingsPage })));
 const TasksPage = lazy(() => import("../pages/TasksPage").then((module) => ({ default: module.TasksPage })));
@@ -191,6 +193,8 @@ export function AppRouter() {
             }
           />
           <Route path="/reports" element={<ReportsPage workspace={workspace} />} />
+          <Route path="/leaderboard" element={<LeaderboardPage workspace={workspace} />} />
+          <Route path="/heatmap" element={<HeatmapPage workspace={workspace} />} />
           <Route
             path="/tasks"
             element={

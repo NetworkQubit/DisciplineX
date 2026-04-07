@@ -25,6 +25,8 @@ const categoryLabels = {
   writing: "Writing",
   learning: "Learning",
   planning: "Planning",
+  ti_cohort: "TI COHORT",
+  backlogs: "BACKLOGS",
   others: "Others"
 } as const;
 
@@ -143,40 +145,43 @@ function SortableTaskCard({
   );
 }
 
-type LaneId = "personal" | "in_progress" | "will_see_later" | "done";
+type LaneId = "ti_cohort" | "in_progress" | "backlogs" | "done";
 
-const laneOrder: LaneId[] = ["personal", "in_progress", "will_see_later", "done"];
+const laneOrder: LaneId[] = ["ti_cohort", "in_progress", "backlogs", "done"];
 
 const laneLabels: Record<LaneId, string> = {
-  personal: "PERSONAL",
+  ti_cohort: "TI COHORT",
   in_progress: "IN PROGRESS",
-  will_see_later: "WILL SEE LATER",
+  backlogs: "BACKLOGS",
   done: "DONE"
 };
 
 const laneBorderClasses: Record<LaneId, string> = {
-  personal: "border-fuchsia-400/30",
+  ti_cohort: "border-fuchsia-400/30",
   in_progress: "border-amber-400/30",
-  will_see_later: "border-sky-400/30",
+  backlogs: "border-sky-400/30",
   done: "border-emerald-400/30"
 };
 
 function getLaneIdForTask(task: Task): LaneId {
   const status = task.status || "backlog";
 
+  if (status === "will_see_later") {
+    return "ti_cohort";
+  }
+
   if (status === "backlog") {
-    return "personal";
+    return "backlogs";
   }
 
   if (status === "in_progress") return "in_progress";
-  if (status === "will_see_later") return "will_see_later";
   return "done";
 }
 
 function laneToStatus(laneId: LaneId): Task["status"] {
-  if (laneId === "personal") return "backlog";
+  if (laneId === "ti_cohort") return "will_see_later";
+  if (laneId === "backlogs") return "backlog";
   if (laneId === "in_progress") return "in_progress";
-  if (laneId === "will_see_later") return "will_see_later";
   return "done";
 }
 
@@ -267,7 +272,7 @@ export function TaskBoard({ tasks, subjects, onAddTask, onUpdateTask, onReorderT
     const updatedActiveTask: Task = {
       ...activeTask,
       status: nextStatus,
-      subject: targetLane === "personal" ? null : activeTask.subject
+      subject: targetLane === "backlogs" ? null : activeTask.subject
     };
 
     const withoutActive = items.filter((task) => task.id !== activeId);
@@ -292,7 +297,7 @@ export function TaskBoard({ tasks, subjects, onAddTask, onUpdateTask, onReorderT
     setItems(next);
 
     const updatePayload: Record<string, unknown> = { status: nextStatus };
-    if (targetLane === "personal") {
+    if (targetLane === "backlogs") {
       updatePayload.subjectId = undefined; // backend converts subjectId -> subject and unsets when falsy
     }
 

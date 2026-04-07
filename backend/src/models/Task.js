@@ -27,7 +27,7 @@ const taskSchema = new mongoose.Schema(
     },
     category: {
       type: String,
-      enum: ["coding", "debugging", "research", "writing", "learning", "planning", "others"],
+      enum: ["coding", "debugging", "research", "writing", "learning", "planning", "ti_cohort", "backlogs", "others"],
       default: "others"
     },
     subtasks: { type: [subtaskSchema], default: [] },

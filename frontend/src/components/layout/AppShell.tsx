@@ -1,4 +1,5 @@
 import {
+  Activity,
   BarChart3,
   CalendarDays,
   ChevronLeft,
@@ -10,6 +11,7 @@ import {
   ListTodo,
   LogOut,
   MoonStar,
+  Trophy,
   Settings,
   SunMedium,
   Timer
@@ -25,6 +27,8 @@ const links = [
   { to: "/reports", label: "Reports & Analytics", icon: BarChart3 },
   { to: "/tasks", label: "Task Categories", icon: ListTodo },
   { to: "/calendar", label: "Calendar", icon: CalendarDays },
+  { to: "/leaderboard", label: "Leaderboard", icon: Trophy },
+  { to: "/heatmap", label: "Heatmap", icon: Activity },
   { to: "/settings", label: "Settings", icon: Settings }
 ];
 

@@ -52,7 +52,16 @@ export type Task = {
   title: string;
   completed: boolean;
   priority: "low" | "medium" | "high";
-  category?: "coding" | "debugging" | "research" | "writing" | "learning" | "planning" | "others";
+  category?:
+    | "coding"
+    | "debugging"
+    | "research"
+    | "writing"
+    | "learning"
+    | "planning"
+    | "ti_cohort"
+    | "backlogs"
+    | "others";
   subject?: {
     _id?: string;
     name: string;

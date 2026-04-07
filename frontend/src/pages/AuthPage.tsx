@@ -1,5 +1,5 @@
-import { BookOpen, KeyRound, UserRound } from "lucide-react";
-import { useMemo, useState } from "react";
+import { BookOpen, KeyRound, MoonStar, SunMedium, UserRound } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 
 type AuthPageProps = {
   onLogin: (payload: { email: string; password: string }) => Promise<void>;
@@ -18,6 +18,10 @@ export function AuthPage({
   error,
   loading = false
 }: AuthPageProps) {
+  const [theme, setTheme] = useState<"light" | "dark">(() => {
+    if (typeof window === "undefined") return "light";
+    return window.localStorage.getItem("studyflow_theme") === "dark" ? "dark" : "light";
+  });
   const searchParams = useMemo(() => new URLSearchParams(window.location.search), []);
   const tokenFromUrl = searchParams.get("resetToken") || "";
   const emailFromUrl = searchParams.get("email") || "";
@@ -27,6 +31,13 @@ export function AuthPage({
   const [password, setPassword] = useState("");
   const [passwordConfirmation, setPasswordConfirmation] = useState("");
   const [localMessage, setLocalMessage] = useState("");
+
+  useEffect(() => {
+    document.documentElement.classList.toggle("dark", theme === "dark");
+    document.documentElement.setAttribute("data-theme", theme);
+    document.documentElement.style.colorScheme = theme;
+    window.localStorage.setItem("studyflow_theme", theme);
+  }, [theme]);
 
   async function handleSubmit() {
     if (mode === "login") {
@@ -62,7 +73,16 @@ export function AuthPage({
     <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(255,255,255,0.92),_rgba(246,244,237,0.95)_34%,_rgba(226,232,240,0.9)_72%),linear-gradient(180deg,_#f8fafc_0%,_#eef2ff_100%)] px-6 py-10 text-slate-900 dark:bg-[radial-gradient(circle_at_top_left,_rgba(45,212,191,0.12),_transparent_24%),radial-gradient(circle_at_top_right,_rgba(251,191,36,0.08),_transparent_18%),linear-gradient(180deg,_#08111f_0%,_#111827_48%,_#172033_100%)] dark:text-slate-50">
       <div className="mx-auto grid min-h-[calc(100vh-5rem)] max-w-6xl gap-6 lg:grid-cols-[1.05fr_0.95fr]">
         <section className="rounded-[40px] border border-white/50 bg-white/82 p-8 shadow-[0_26px_80px_rgba(148,163,184,0.18)] backdrop-blur-xl dark:border-white/10 dark:bg-slate-950/72 dark:shadow-[0_24px_80px_rgba(2,6,23,0.48)] lg:p-10">
-          <p className="text-xs uppercase tracking-[0.34em] text-teal-600 dark:text-teal-300/80">DisciplineX</p>
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-xs uppercase tracking-[0.34em] text-teal-600 dark:text-teal-300/80">DisciplineX</p>
+            <button
+              className="rounded-2xl border border-slate-200 bg-white p-3 text-slate-700 dark:border-white/10 dark:bg-white/5 dark:text-slate-100"
+              onClick={() => setTheme((value) => (value === "light" ? "dark" : "light"))}
+              aria-label="Toggle theme"
+            >
+              {theme === "light" ? <MoonStar className="h-4 w-4" /> : <SunMedium className="h-4 w-4" />}
+            </button>
+          </div>
           <h1 className="mt-4 text-4xl font-semibold leading-tight lg:text-5xl">
             Study with structure, now with your own account.
           </h1>
