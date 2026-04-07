@@ -7,10 +7,10 @@ type LeaderboardPageProps = {
 };
 
 const ringConfig = [
-  { label: "TODAY", color: "#f97316", ratio: 0.76, inset: 0 },
-  { label: "WEEK", color: "#3b82f6", ratio: 0.6, inset: 14 },
-  { label: "MONTH", color: "#a855f7", ratio: 0.42, inset: 28 },
-  { label: "ALL TIME", color: "#22c55e", ratio: 0.3, inset: 42 }
+  { label: "TODAY", color: "#f97316", inset: 0 },
+  { label: "WEEK", color: "#3b82f6", inset: 14 },
+  { label: "MONTH", color: "#a855f7", inset: 28 },
+  { label: "ALL TIME", color: "#22c55e", inset: 42 }
 ] as const;
 
 export function LeaderboardPage({ workspace }: LeaderboardPageProps) {
@@ -18,13 +18,12 @@ export function LeaderboardPage({ workspace }: LeaderboardPageProps) {
   const week = workspace.analytics.overview.weekMinutes;
   const month = workspace.analytics.overview.monthMinutes;
   const allTime = Math.round(workspace.profile.totalStudySeconds / 60);
-  const categoryData = [
-    { label: "Learning", color: "bg-amber-400", value: workspace.tasks.filter((task) => task.category === "learning").length },
-    { label: "Debugging", color: "bg-rose-400", value: workspace.tasks.filter((task) => task.category === "debugging").length },
-    { label: "TI Cohort", color: "bg-fuchsia-400", value: workspace.tasks.filter((task) => task.category === "ti_cohort").length },
-    { label: "Backlogs", color: "bg-cyan-400", value: workspace.tasks.filter((task) => task.category === "backlogs").length }
+  const ringRatios = [
+    allTime > 0 ? Math.min(today / allTime, 1) : 0,
+    allTime > 0 ? Math.min(week / allTime, 1) : 0,
+    allTime > 0 ? Math.min(month / allTime, 1) : 0,
+    allTime > 0 ? 1 : 0
   ];
-  const maxCategory = Math.max(...categoryData.map((entry) => entry.value), 1);
 
   return (
     <div className="space-y-6">
@@ -44,12 +43,12 @@ export function LeaderboardPage({ workspace }: LeaderboardPageProps) {
             <p className="mb-4 text-sm font-medium text-slate-300">Your Stats</p>
             <div className="flex items-center justify-center">
               <div className="relative h-56 w-56">
-                {ringConfig.map((ring) => (
+                {ringConfig.map((ring, index) => (
                   <div key={ring.label} className="absolute rounded-full" style={{ inset: `${ring.inset}px` }}>
                     <div
                       className="h-full w-full rounded-full"
                       style={{
-                        background: `conic-gradient(${ring.color} ${Math.round(ring.ratio * 360)}deg, rgba(100,116,139,0.4) 0deg)`
+                        background: `conic-gradient(${ring.color} ${Math.round(ringRatios[index] * 360)}deg, rgba(100,116,139,0.4) 0deg)`
                       }}
                     />
                     <div className="absolute inset-[6px] rounded-full bg-[#060b20]" />
@@ -84,26 +83,6 @@ export function LeaderboardPage({ workspace }: LeaderboardPageProps) {
           </div>
         </div>
 
-        <article className="mt-6 rounded-[28px] border border-white/10 bg-slate-950/35 p-5">
-          <p className="text-sm font-medium text-slate-300">Total Time by Category</p>
-          <p className="mt-1 text-xs text-slate-500">Task distribution snapshot</p>
-          <div className="mt-4 space-y-3">
-            {categoryData.map((entry) => (
-              <div key={entry.label}>
-                <div className="mb-1 flex items-center justify-between text-sm">
-                  <p className="text-slate-300">{entry.label}</p>
-                  <p className="text-slate-400">{entry.value} tasks</p>
-                </div>
-                <div className="h-2 overflow-hidden rounded-full bg-white/10">
-                  <div
-                    className={`h-full rounded-full ${entry.color}`}
-                    style={{ width: `${Math.max(10, Math.round((entry.value / maxCategory) * 100))}%` }}
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
-        </article>
       </section>
     </div>
   );
