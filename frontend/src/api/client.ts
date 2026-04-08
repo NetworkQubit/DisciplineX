@@ -1,10 +1,20 @@
 import axios from "axios";
 
-const isBrowser = typeof window !== "undefined";
-const defaultBaseUrl = isBrowser ? "/api" : "http://localhost:5000/api";
+function resolveDefaultBaseUrl() {
+  if (typeof window === "undefined") {
+    return "http://localhost:5000/api";
+  }
+
+  const hostname = window.location.hostname;
+  if (hostname === "localhost" || hostname === "127.0.0.1") {
+    return "http://localhost:5000/api";
+  }
+
+  return "/api";
+}
 
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || defaultBaseUrl
+  baseURL: import.meta.env.VITE_API_URL || resolveDefaultBaseUrl()
 });
 
 api.interceptors.response.use(
