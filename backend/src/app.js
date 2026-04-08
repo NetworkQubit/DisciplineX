@@ -68,6 +68,16 @@ export function createApp() {
     res.json({ status: "ok", timestamp: new Date().toISOString() });
   });
 
+  app.get("/api", (req, res) => {
+    res.json({
+      name: "DisciplineX API",
+      status: "ok",
+      health: "/api/health",
+      auth: "/api/auth",
+      workspace: "/api/workspace"
+    });
+  });
+
   app.use("/api/auth", authRoutes);
   app.use("/api/workspace", protectWhenMongo, workspaceRoutes);
 
